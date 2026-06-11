@@ -491,7 +491,9 @@ async function sendToSheets(gasto){
   const row=[fmtDate(gasto.data), Number(Number(gasto.valor).toFixed(2)), gasto.desc, gasto.status];
   console.log('Sending to sheet:', sheetName, 'row:', row);
   try{
-    const url='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+sheetName+':append?valueInputOption=USER_ENTERED';
+    // Sheets API requires single quotes around sheet names with hyphens, encoded as %27
+    const encodedSheet="%27"+encodeURIComponent(sheetName)+"%27";
+    const url='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+encodedSheet+':append?valueInputOption=USER_ENTERED';
     const resp=await fetch(url,{
       method:'POST',
       headers:{'Authorization':'Bearer '+state.googleToken,'Content-Type':'application/json'},
