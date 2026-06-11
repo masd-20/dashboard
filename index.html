@@ -553,10 +553,9 @@ async function sendToSheets(gasto){
   const sheetName = months[d.getMonth()]+'-'+String(d.getFullYear()).slice(2);
 
   // Row matches planilha: Data Pagamento | Valor | Descrição | Status
-  const valorFmt = 'R$ '+Number(gasto.valor).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
   const row = [
     fmtDate(gasto.data),
-    valorFmt,
+    Number(gasto.valor),
     gasto.desc,
     gasto.status,
   ];
@@ -862,7 +861,17 @@ loadState();
 document.getElementById('hsub').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
 renderHome();
 updateSheetsUI(!!state.googleToken);
-window.addEventListener('load', ()=>{ setTimeout(initGoogleClient, 1000); });
+window.addEventListener('load', ()=>{
+  setTimeout(()=>{
+    initGoogleClient();
+    setTimeout(()=>{
+      if(tokenClient && !state.googleToken){
+        try{ tokenClient.requestAccessToken({prompt:''}); }
+        catch(e){ console.log('Auto-reconnect: aguardando login manual'); }
+      }
+    }, 1500);
+  }, 1000);
+});
 </script>
 </body>
 </html>
