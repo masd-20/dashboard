@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Meu Dashboard">
 <title>Meu Dashboard</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -24,7 +25,7 @@ html,body{height:100%;background:var(--bg0);color:var(--txt1);font-family:-apple
 .header{padding:52px 18px 10px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
 .header-title{font-size:20px;font-weight:600}
 .header-sub{font-size:12px;color:var(--txt2);margin-top:2px}
-.avatar{width:36px;height:36px;border-radius:50%;background:var(--purple-d);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--purple-l);flex-shrink:0}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--purple-d);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--purple-l);flex-shrink:0;cursor:pointer}
 .screens{flex:1;overflow:hidden;position:relative}
 .screen{position:absolute;inset:0;overflow-y:auto;padding:0 18px 20px;display:none;-webkit-overflow-scrolling:touch}
 .screen.active{display:block}
@@ -36,14 +37,10 @@ html,body{height:100%;background:var(--bg0);color:var(--txt1);font-family:-apple
 .stat-val{font-size:22px;font-weight:600}
 .stat-change{font-size:11px;color:var(--txt3);margin-top:3px}
 .c-purple{color:var(--purple-l)}.c-teal{color:var(--teal-l)}.c-amber{color:var(--amber-l)}.c-coral{color:var(--coral-l)}
-
-/* tabs */
 .tab-row{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px}
 .tab-row::-webkit-scrollbar{display:none}
 .tab-btn{padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;border:.5px solid var(--bg3);background:var(--bg2);color:var(--txt2);white-space:nowrap;transition:all .15s;font-family:inherit}
 .tab-btn.active{background:var(--purple-d);color:var(--purple-l);border-color:var(--purple-d)}
-
-/* tasks */
 .task-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:.5px solid var(--bg3)}
 .task-item:last-child{border-bottom:none}
 .task-check{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--bg4);cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .2s;background:transparent}
@@ -59,8 +56,6 @@ html,body{height:100%;background:var(--bg0);color:var(--txt1);font-family:-apple
 .cat-financeiro{background:#201f1366;color:var(--amber-l)}
 .prio-alta{color:var(--coral-l);font-size:10px}
 .prio-media{color:var(--amber-l);font-size:10px}
-
-/* habits */
 .habit-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:.5px solid var(--bg3)}
 .habit-row:last-child{border-bottom:none}
 .habit-check{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--bg4);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
@@ -71,8 +66,6 @@ html,body{height:100%;background:var(--bg0);color:var(--txt1);font-family:-apple
 .dot{width:7px;height:7px;border-radius:50%;background:var(--bg3)}
 .dot.done{background:var(--teal)}
 .dot.today{background:var(--purple)}
-
-/* financial */
 .fin-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:.5px solid var(--bg3);font-size:13px}
 .fin-row:last-child{border-bottom:none}
 .fin-desc{color:var(--txt1);font-size:14px}
@@ -82,16 +75,12 @@ html,body{height:100%;background:var(--bg0);color:var(--txt1);font-family:-apple
 .status-pago{background:#12201866;color:var(--teal-l)}
 .status-apagar{background:#20181366;color:var(--amber-l)}
 .fin-valor{font-weight:600;font-size:14px;color:var(--coral-l)}
-
-/* notes */
 .nota-card{background:var(--bg2);border-radius:var(--radius-sm);padding:13px;border:.5px solid var(--bg3);margin-bottom:8px;cursor:pointer;transition:border-color .15s}
 .nota-card:active{border-color:var(--bg4)}
 .nota-title{font-size:14px;font-weight:500;color:var(--txt1);margin-bottom:4px}
 .nota-body{font-size:12px;color:var(--txt2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .nota-date{font-size:10px;color:var(--txt3);margin-top:6px}
 .nota-tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;background:var(--bg3);color:var(--txt2);margin-right:4px;margin-top:5px}
-
-/* calendar */
 .cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .cal-nav-btn{background:none;border:none;color:var(--txt2);font-size:20px;cursor:pointer;padding:4px 8px}
 .cal-month-title{font-size:15px;font-weight:500}
@@ -107,24 +96,13 @@ html,body{height:100%;background:var(--bg0);color:var(--txt1);font-family:-apple
 .event-time{font-size:11px;color:var(--txt2);width:44px;flex-shrink:0;padding-top:1px}
 .event-name{font-size:14px;color:var(--txt1)}
 .event-sub{font-size:11px;color:var(--txt2);margin-top:1px}
-
-/* hab history bars */
-.hab-bar-row{margin-bottom:14px}
-.hab-bar-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
-.hab-bar-bg{height:6px;background:var(--bg3);border-radius:3px}
-.hab-bar-fill{height:6px;border-radius:3px;transition:width .4s}
-
-/* progress ring for home */
-.ring-wrap{display:flex;align-items:center;gap:12px}
-.ring-info .ring-num{font-size:22px;font-weight:600}
-.ring-info .ring-lbl{font-size:11px;color:var(--txt2)}
-
-/* buttons */
+.bar-chart{display:flex;flex-direction:column;gap:12px}
+.bar-label-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.bar-track{height:7px;background:var(--bg3);border-radius:4px}
+.bar-fill{height:7px;border-radius:4px;transition:width .5s}
 .add-btn{width:100%;padding:13px;background:var(--purple-d);border:none;border-radius:var(--radius-sm);color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;transition:background .15s;font-family:inherit}
 .add-btn:active{background:var(--purple)}
 .sec-btn{width:100%;padding:12px;background:transparent;border:.5px solid var(--bg3);border-radius:var(--radius-sm);color:var(--txt2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;font-family:inherit}
-
-/* modal */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:flex-end;justify-content:center}
 .overlay.open{display:flex}
 .sheet{background:var(--bg1);border-radius:var(--radius) var(--radius) 0 0;width:100%;max-width:430px;padding:20px 18px 40px;border-top:.5px solid var(--bg3);max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -132,8 +110,6 @@ html,body{height:100%;background:var(--bg0);color:var(--txt1);font-family:-apple
 .sheet-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
 .sheet-title{font-size:17px;font-weight:600}
 .close-btn{background:none;border:none;color:var(--txt2);font-size:22px;cursor:pointer;line-height:1;padding:0}
-
-/* forms */
 .form-group{margin-bottom:16px}
 .form-label{font-size:12px;color:var(--txt2);margin-bottom:7px;display:block}
 .form-input{width:100%;padding:11px 12px;background:var(--bg2);border:.5px solid var(--bg3);border-radius:var(--radius-sm);color:var(--txt1);font-size:15px;font-family:inherit;outline:none;-webkit-appearance:none;transition:border-color .15s}
@@ -146,7 +122,7 @@ textarea.form-input{resize:none;line-height:1.6}
 .seg-btn.active{background:var(--bg3);color:var(--txt1)}
 .prio-row{display:flex;gap:8px}
 .prio-opt{flex:1;padding:9px 6px;border:.5px solid var(--bg3);border-radius:var(--radius-sm);text-align:center;font-size:13px;cursor:pointer;background:var(--bg2);color:var(--txt2);transition:all .15s}
-.prio-opt.sel-alta{border-color:var(--coral);color:var(--coral-l);background:#1a121200}
+.prio-opt.sel-alta{border-color:var(--coral);color:var(--coral-l)}
 .prio-opt.sel-media{border-color:var(--amber);color:var(--amber-l)}
 .prio-opt.sel-baixa{border-color:var(--teal);color:var(--teal-l)}
 .cat-row{display:flex;gap:6px;flex-wrap:wrap}
@@ -161,53 +137,54 @@ textarea.form-input{resize:none;line-height:1.6}
 .switch::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left .2s}
 .switch.on::after{left:20px}
 .hint{font-size:11px;color:var(--txt3);margin-top:4px}
-.vcto-info{padding:10px 12px;background:var(--bg2);border:.5px solid var(--bg3);border-radius:var(--radius-sm);font-size:13px;color:var(--teal-l);display:none}
-.vcto-info.show{display:block}
-
-/* bottom nav */
+.vcto-info{padding:10px 12px;background:var(--bg2);border:.5px solid var(--bg3);border-radius:var(--radius-sm);font-size:13px;color:var(--teal-l)}
 .bottom-nav{display:flex;background:var(--bg1);border-top:.5px solid var(--bg3);padding:6px 0 env(safe-area-inset-bottom,6px);flex-shrink:0}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;background:none;border:none;color:var(--txt3);font-size:9px;font-family:inherit;padding:4px 0;transition:color .15s}
 .nav-btn.active{color:var(--purple-l)}
 .nav-icon{font-size:22px;line-height:1}
-
-/* search bar */
 .search-wrap{position:relative;margin-bottom:14px}
 .search-input{padding-left:36px}
 .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--txt3);font-size:16px}
-
-/* empty state */
 .empty{text-align:center;padding:40px 20px;color:var(--txt2)}
 .empty-icon{font-size:40px;margin-bottom:12px;opacity:.4}
 .empty-text{font-size:14px}
 
-/* bar chart */
-.bar-chart{display:flex;flex-direction:column;gap:10px}
-.bar-item{}
-.bar-label-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;color:var(--txt1)}
-.bar-val{color:var(--txt2);font-size:12px}
-.bar-track{height:7px;background:var(--bg3);border-radius:4px}
-.bar-fill{height:7px;border-radius:4px;transition:width .5s}
+/* sync status */
+.sync-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:4px 10px;border-radius:20px;margin-bottom:10px}
+.sync-ok{background:#12201866;color:var(--teal-l)}
+.sync-off{background:#20181366;color:var(--amber-l)}
+.sync-loading{background:#27253566;color:var(--purple-l)}
+
+/* google connect banner */
+.connect-banner{background:var(--bg2);border:.5px solid var(--bg3);border-radius:var(--radius);padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.connect-banner-icon{font-size:24px;flex-shrink:0}
+.connect-banner-text{flex:1;font-size:13px;color:var(--txt2);line-height:1.5}
+.connect-btn{padding:8px 14px;background:var(--purple-d);border:none;border-radius:var(--radius-sm);color:#fff;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:inherit}
 </style>
 </head>
 <body>
 <div class="app">
-
   <div class="header">
     <div>
       <div class="header-title" id="htitle">Olá, Marcelo 👋</div>
-      <div class="header-sub" id="hsub" id="hsub"></div>
+      <div class="header-sub" id="hsub"></div>
     </div>
-    <div class="avatar">M</div>
+    <div class="avatar" onclick="goScreen('config',document.querySelector('[data-s=config]'))" title="Configurações">M</div>
   </div>
 
   <div class="screens">
 
     <!-- HOME -->
     <div id="s-home" class="screen active">
+      <div id="google-banner" class="connect-banner" style="display:none">
+        <div class="connect-banner-icon">📊</div>
+        <div class="connect-banner-text">Conecte ao Google para sincronizar lançamentos com sua planilha.</div>
+        <button class="connect-btn" onclick="signInGoogle()">Conectar</button>
+      </div>
       <div class="section-label">Financeiro — <span id="home-mes"></span></div>
       <div class="stats-row">
         <div class="stat-card"><div class="stat-label">Saldo restante</div><div class="stat-val c-teal" id="home-saldo">R$ 0</div><div class="stat-change">Após despesas</div></div>
-        <div class="stat-card"><div class="stat-label">A pagar</div><div class="stat-val c-amber" id="home-apagar">R$ 0</div><div class="stat-change" id="home-vcto"></div></div>
+        <div class="stat-card"><div class="stat-label">A pagar</div><div class="stat-val c-amber" id="home-apagar">R$ 0</div><div class="stat-change">Vence dia 10</div></div>
       </div>
       <div class="stats-row">
         <div class="stat-card"><div class="stat-label">Tarefas hoje</div><div class="stat-val c-purple" id="home-tasks">0 pendentes</div><div class="stat-change" id="home-tasks-done"></div></div>
@@ -277,18 +254,57 @@ textarea.form-input{resize:none;line-height:1.6}
       <button class="add-btn" onclick="openModal('m-evento')">＋ Novo evento</button>
     </div>
 
+    <!-- CONFIG -->
+    <div id="s-config" class="screen">
+      <div class="section-label">Integrações</div>
+      <div class="card-block">
+        <div class="switch-row">
+          <div>
+            <div style="font-size:14px;font-weight:500">Google Sheets</div>
+            <div style="font-size:12px;color:var(--txt2);margin-top:2px" id="sheets-status-text">Não conectado</div>
+          </div>
+          <button class="connect-btn" id="sheets-connect-btn" onclick="signInGoogle()">Conectar</button>
+        </div>
+        <div class="hint" style="margin-top:4px">Lançamentos financeiros são enviados automaticamente para sua planilha Google Sheets.</div>
+      </div>
+      <div class="card-block">
+        <div class="switch-row">
+          <div>
+            <div style="font-size:14px;font-weight:500">Google Agenda</div>
+            <div style="font-size:12px;color:var(--txt2);margin-top:2px">Em breve</div>
+          </div>
+          <button class="connect-btn" style="opacity:.4;cursor:default">Conectar</button>
+        </div>
+      </div>
+      <div class="section-label">Planilha</div>
+      <div class="card-block">
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">ID da planilha Google Sheets</label>
+          <input class="form-input" id="sheets-id-input" value="1HgRdVCBCFo-0viLX9pdTGtsBNkb61m3SWMWNpaz3UfQ" placeholder="Cole o ID aqui">
+          <div class="hint">Encontrado na URL da planilha entre /d/ e /edit</div>
+        </div>
+        <button class="add-btn" style="margin-top:12px" onclick="saveSheetId()">Salvar ID</button>
+      </div>
+      <div class="section-label">Sobre</div>
+      <div class="card-block">
+        <div style="font-size:13px;color:var(--txt2);line-height:1.8">
+          <div>Versão 1.0</div>
+          <div>Desenvolvido com Claude (Anthropic)</div>
+          <div style="margin-top:8px;font-size:12px">Os dados ficam salvos no seu navegador (localStorage). A integração com Google Sheets envia os lançamentos financeiros para sua planilha.</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" onclick="goScreen('home',this)"><span class="nav-icon">🏠</span>Início</button>
-    <button class="nav-btn" onclick="goScreen('tarefas',this)"><span class="nav-icon">✅</span>Tarefas</button>
-    <button class="nav-btn" onclick="goScreen('financeiro',this)"><span class="nav-icon">💰</span>Financeiro</button>
-    <button class="nav-btn" onclick="goScreen('habitos',this)"><span class="nav-icon">🔥</span>Hábitos</button>
-    <button class="nav-btn" onclick="goScreen('notas',this)"><span class="nav-icon">📝</span>Notas</button>
-    <button class="nav-btn" onclick="goScreen('agenda',this)"><span class="nav-icon">📅</span>Agenda</button>
+    <button class="nav-btn active" data-s="home" onclick="goScreen('home',this)"><span class="nav-icon">🏠</span>Início</button>
+    <button class="nav-btn" data-s="tarefas" onclick="goScreen('tarefas',this)"><span class="nav-icon">✅</span>Tarefas</button>
+    <button class="nav-btn" data-s="financeiro" onclick="goScreen('financeiro',this)"><span class="nav-icon">💰</span>Financeiro</button>
+    <button class="nav-btn" data-s="habitos" onclick="goScreen('habitos',this)"><span class="nav-icon">🔥</span>Hábitos</button>
+    <button class="nav-btn" data-s="notas" onclick="goScreen('notas',this)"><span class="nav-icon">📝</span>Notas</button>
+    <button class="nav-btn" data-s="agenda" onclick="goScreen('agenda',this)"><span class="nav-icon">📅</span>Agenda</button>
   </nav>
-
 </div>
 
 <!-- MODALS -->
@@ -306,7 +322,7 @@ textarea.form-input{resize:none;line-height:1.6}
       <div class="cat-opt" onclick="selCat(this)">Saúde</div>
       <div class="cat-opt" onclick="selCat(this)">Financeiro</div>
     </div></div>
-    <div class="form-group"><label class="form-label">Prioridade</label><div class="prio-row" id="t-prios">
+    <div class="form-group"><label class="form-label">Prioridade</label><div class="prio-row">
       <div class="prio-opt" onclick="selPrio(this,'alta')">● Alta</div>
       <div class="prio-opt sel-media" onclick="selPrio(this,'media')">● Média</div>
       <div class="prio-opt" onclick="selPrio(this,'baixa')">● Baixa</div>
@@ -314,9 +330,6 @@ textarea.form-input{resize:none;line-height:1.6}
     <div class="form-row">
       <div class="form-group"><label class="form-label">Data</label><input class="form-input" id="t-data" type="date"></div>
       <div class="form-group"><label class="form-label">Hora (opcional)</label><input class="form-input" id="t-hora" type="time"></div>
-    </div>
-    <div class="form-group">
-      <div class="switch-row"><span style="font-size:13px;color:var(--txt2)">Criar evento na Agenda</span><div class="switch" id="t-agenda-sw" onclick="toggleSw(this)"></div></div>
     </div>
     <button class="add-btn" onclick="saveTarefa()">Salvar tarefa</button>
   </div>
@@ -332,26 +345,26 @@ textarea.form-input{resize:none;line-height:1.6}
     <div class="form-group"><label class="form-label">Descrição</label><input class="form-input" id="g-desc" placeholder="Ex: Mercado, Farmácia..."></div>
     <div class="form-group"><label class="form-label">Valor (R$)</label><input class="form-input" id="g-valor" type="number" step="0.01" placeholder="0,00"></div>
     <div class="form-group"><label class="form-label">Forma de pagamento</label>
-      <div class="seg-control">
-        <button class="seg-btn active" onclick="selSeg(this,'g-forma');toggleVcto(true)">Cartão</button>
-        <button class="seg-btn" onclick="selSeg(this,'g-forma');toggleVcto(false)">Pix / Dinheiro</button>
+      <div class="seg-control" id="seg-forma">
+        <button class="seg-btn active" onclick="selSeg(this)">Cartão</button>
+        <button class="seg-btn" onclick="selSeg(this)">Pix / Dinheiro</button>
       </div>
     </div>
-    <div id="vcto-box" class="form-group">
+    <div class="form-group" id="vcto-box">
       <label class="form-label">Vencimento automático</label>
-      <div class="vcto-info show" id="vcto-info">Dia 10 do próximo mês</div>
+      <div class="vcto-info" id="vcto-info">📅 Dia 10 do próximo mês</div>
       <div class="hint">Calculado automaticamente para dia 10</div>
     </div>
     <div class="form-group"><label class="form-label">Data do gasto</label><input class="form-input" id="g-data" type="date"></div>
     <div class="form-group"><label class="form-label">Status</label>
-      <div class="seg-control">
-        <button class="seg-btn active" onclick="selSeg(this,'g-status')">A Pagar</button>
-        <button class="seg-btn" onclick="selSeg(this,'g-status')">Pago</button>
+      <div class="seg-control" id="seg-status">
+        <button class="seg-btn active" onclick="selSeg(this)">A Pagar</button>
+        <button class="seg-btn" onclick="selSeg(this)">Pago</button>
       </div>
     </div>
     <div class="form-group">
-      <div class="switch-row"><span style="font-size:13px;color:var(--txt2)">Salvar na planilha Excel</span><div class="switch on" id="g-excel-sw" onclick="toggleSw(this)"></div></div>
-      <div class="hint">Requer conexão com Microsoft 365 (configurar nas integrações)</div>
+      <div class="switch-row"><span style="font-size:13px;color:var(--txt2)">Enviar para Google Sheets</span><div class="switch on" id="g-sheets-sw" onclick="toggleSw(this)"></div></div>
+      <div class="hint" id="sheets-hint-text">Conecte o Google Sheets nas configurações para ativar.</div>
     </div>
     <button class="add-btn" onclick="saveGasto()">Salvar lançamento</button>
   </div>
@@ -378,10 +391,10 @@ textarea.form-input{resize:none;line-height:1.6}
       </div>
     </div>
     <div class="form-group"><label class="form-label">Frequência</label>
-      <div class="seg-control">
-        <button class="seg-btn active" onclick="selSeg(this,'hab-freq')">Diário</button>
-        <button class="seg-btn" onclick="selSeg(this,'hab-freq')">Dias úteis</button>
-        <button class="seg-btn" onclick="selSeg(this,'hab-freq')">Final de semana</button>
+      <div class="seg-control" id="seg-freq">
+        <button class="seg-btn active" onclick="selSeg(this)">Diário</button>
+        <button class="seg-btn" onclick="selSeg(this)">Dias úteis</button>
+        <button class="seg-btn" onclick="selSeg(this)">Final de semana</button>
       </div>
     </div>
     <button class="add-btn" onclick="saveHabito()">Criar hábito</button>
@@ -416,20 +429,18 @@ textarea.form-input{resize:none;line-height:1.6}
       <div class="form-group"><label class="form-label">Hora</label><input class="form-input" id="ev-hora" type="time"></div>
     </div>
     <div class="form-group"><label class="form-label">Local (opcional)</label><input class="form-input" id="ev-local" placeholder="Onde?"></div>
-    <div class="form-group">
-      <div class="switch-row"><span style="font-size:13px;color:var(--txt2)">Sincronizar com Google Agenda</span><div class="switch on" id="ev-gcal-sw" onclick="toggleSw(this)"></div></div>
-      <div class="hint">Requer conexão com Google (configurar nas integrações)</div>
-    </div>
-    <div class="form-group">
-      <div class="switch-row"><span style="font-size:13px;color:var(--txt2)">Lembrete 1h antes</span><div class="switch on" id="ev-remind-sw" onclick="toggleSw(this)"></div></div>
-    </div>
     <button class="add-btn" onclick="saveEvento()">Criar evento</button>
   </div>
 </div>
 
 <script>
+// ---- CONFIG ----
+const GOOGLE_CLIENT_ID = '25270362419-a1kpsrv2gt20pelsismq0r0tkile7lq4.apps.googleusercontent.com';
+const SHEETS_ID_DEFAULT = '1HgRdVCBCFo-0viLX9pdTGtsBNkb61m3SWMWNpaz3UfQ';
+const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+const STORE_KEY = 'dashboard_v2';
+
 // ---- STATE ----
-const STORE_KEY = 'dashboard_v1';
 let state = {
   tarefas: [
     {id:1,desc:'Pagar fatura do cartão',cat:'Financeiro',prio:'alta',data:today(),hora:'',done:false},
@@ -451,70 +462,156 @@ let state = {
     {id:4,nome:'Sem gastos desnecessários',icone:'💰',freq:'Diário',historico:[1,1,1,0,1,0,0]},
   ],
   notas: [
-    {id:1,titulo:'Ideias para o app',corpo:'Integrar com Google Agenda para lembretes. Exportar relatório mensal. Notificações push.',tags:['Projetos','Tech'],data:today()},
+    {id:1,titulo:'Ideias para o app',corpo:'Integrar com Google Agenda para lembretes. Exportar relatório mensal.',tags:['Projetos'],data:today()},
     {id:2,titulo:'Lista de compras',corpo:'Arroz, feijão, frango, legumes, detergente, papel higiênico',tags:['Pessoal'],data:'2026-06-09'},
-    {id:3,titulo:'Livros pra ler',corpo:'Atomic Habits, Deep Work, O Poder do Hábito, Rápido e Devagar',tags:['Leitura'],data:'2026-06-05'},
+    {id:3,titulo:'Livros pra ler',corpo:'Atomic Habits, Deep Work, O Poder do Hábito',tags:['Leitura'],data:'2026-06-05'},
   ],
   eventos: [
     {id:1,titulo:'Vencimento — contas',data:today(),hora:'10:00',local:'',cor:'#ef9f27'},
     {id:2,titulo:'Reunião',data:today(),hora:'14:00',local:'',cor:'#7f77dd'},
     {id:3,titulo:'Consulta médica',data:'2026-06-12',hora:'09:00',local:'',cor:'#1d9e75'},
-    {id:4,titulo:'Renovar contrato',data:'2026-06-13',hora:'',local:'',cor:'#85b7eb'},
   ],
   calMonth: new Date().getMonth(),
   calYear: new Date().getFullYear(),
   editNota: null,
   nextId: 100,
+  sheetsId: SHEETS_ID_DEFAULT,
+  googleToken: null,
 };
 
-function loadState(){try{const s=localStorage.getItem(STORE_KEY);if(s){const p=JSON.parse(s);state={...state,...p};}}catch(e){}}
-function saveState(){try{localStorage.setItem(STORE_KEY,JSON.stringify(state));}catch(e){}}
+function loadState(){
+  try{
+    const s=localStorage.getItem(STORE_KEY);
+    if(s){const p=JSON.parse(s);state={...state,...p};}
+  }catch(e){}
+}
+function saveState(){
+  try{
+    const toSave={...state, googleToken: null}; // never persist token
+    localStorage.setItem(STORE_KEY,JSON.stringify(toSave));
+  }catch(e){}
+}
 
+// ---- HELPERS ----
 function today(){return new Date().toISOString().slice(0,10);}
-function fmtDate(d){if(!d)return'';try{const p=new Date(d+'T12:00');return p.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});}catch(e){return d;}}
-function fmtMes(d){try{const p=new Date(d+'T12:00');return p.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});}catch(e){return d;}}
+function fmtDate(d){if(!d)return'';try{return new Date(d+'T12:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});}catch(e){return d;}}
 function fmtBRL(v){return'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function mesAtual(){const n=new Date();return n.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});}
-function weekDay(d){const days=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];return days[new Date(d+'T12:00').getDay()];}
+function mesAtual(){return new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});}
 function calcVcto(){const n=new Date();let m=n.getMonth()+2;let y=n.getFullYear();if(m>12){m=1;y++;}return'10/'+String(m).padStart(2,'0')+'/'+y;}
 function nextWeek(){const d=new Date();d.setDate(d.getDate()+7);return d.toISOString().slice(0,10);}
-function catClass(c){const m={Pessoal:'cat-pessoal',Trabalho:'cat-trabalho','Saúde':'cat-saude',Financeiro:'cat-financeiro'};return m[c]||'cat-pessoal';}
+function catClass(c){return({Pessoal:'cat-pessoal',Trabalho:'cat-trabalho','Saúde':'cat-saude',Financeiro:'cat-financeiro'})[c]||'cat-pessoal';}
 function prioLabel(p){if(p==='alta')return'<span class="prio-alta">● Alta</span>';if(p==='media')return'<span class="prio-media">● Média</span>';return'';}
 function streak(h){let s=0;for(let i=h.length-2;i>=0;i--){if(h[i])s++;else break;}return s;}
 
+// ---- GOOGLE OAUTH ----
+let tokenClient;
+
+function initGoogleClient(){
+  if(typeof google === 'undefined') return;
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: SCOPES,
+    callback: (resp) => {
+      if(resp.error) { alert('Erro ao conectar com Google: '+resp.error); return; }
+      state.googleToken = resp.access_token;
+      updateSheetsUI(true);
+    },
+  });
+}
+
+function signInGoogle(){
+  if(!tokenClient){ alert('Aguarde o carregamento do Google...'); return; }
+  tokenClient.requestAccessToken();
+}
+
+function updateSheetsUI(connected){
+  const statusText = document.getElementById('sheets-status-text');
+  const connectBtn = document.getElementById('sheets-connect-btn');
+  const banner = document.getElementById('google-banner');
+  const hint = document.getElementById('sheets-hint-text');
+  if(connected){
+    if(statusText) statusText.textContent = '✅ Conectado';
+    if(connectBtn){ connectBtn.textContent='Reconectar'; connectBtn.style.background='var(--bg3)'; connectBtn.style.color='var(--txt2)';}
+    if(banner) banner.style.display='none';
+    if(hint) hint.textContent='Lançamento será enviado automaticamente para sua planilha.';
+  } else {
+    if(statusText) statusText.textContent='Não conectado';
+    if(connectBtn){ connectBtn.textContent='Conectar'; connectBtn.style.background='var(--purple-d)'; connectBtn.style.color='#fff';}
+    if(banner) banner.style.display='flex';
+    if(hint) hint.textContent='Conecte o Google Sheets nas configurações para ativar.';
+  }
+}
+
+// ---- SHEETS INTEGRATION ----
+async function sendToSheets(gasto){
+  if(!state.googleToken){ console.log('Sheets: não conectado'); return; }
+  const sheetsId = state.sheetsId || SHEETS_ID_DEFAULT;
+
+  // Determine which sheet tab to use based on current month
+  const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const d = new Date(gasto.data+'T12:00');
+  const sheetName = months[d.getMonth()]+'-'+String(d.getFullYear()).slice(2);
+
+  // Row: [data, descrição, valor, forma, status, vencimento]
+  const row = [
+    fmtDate(gasto.data),
+    gasto.desc,
+    gasto.valor,
+    gasto.forma,
+    gasto.status,
+    gasto.vcto || ''
+  ];
+
+  try {
+    const resp = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetsId}/values/${encodeURIComponent(sheetName)}:append?valueInputOption=USER_ENTERED`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer '+state.googleToken,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ values: [row] }),
+      }
+    );
+    if(!resp.ok){
+      const err = await resp.json();
+      console.error('Sheets error:', err);
+      if(resp.status===401){ state.googleToken=null; updateSheetsUI(false); }
+    } else {
+      console.log('✅ Lançamento enviado para Sheets');
+    }
+  } catch(e){
+    console.error('Sheets fetch error:', e);
+  }
+}
+
 // ---- NAV ----
-const screenTitles={home:'Olá, Marcelo 👋',tarefas:'Tarefas',financeiro:'Financeiro',habitos:'Hábitos',notas:'Notas',agenda:'Agenda'};
-const screenSubs={home:'',tarefas:'Organize seu dia',financeiro:'',habitos:'Seu progresso',notas:'Suas anotações',agenda:''};
+const screenTitles={home:'Olá, Marcelo 👋',tarefas:'Tarefas',financeiro:'Financeiro',habitos:'Hábitos',notas:'Notas',agenda:'Agenda',config:'Configurações'};
 
 function goScreen(name,btn){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('s-'+name).classList.add('active');
-  btn.classList.add('active');
-  document.getElementById('htitle').textContent=screenTitles[name];
+  if(btn) btn.classList.add('active');
+  document.getElementById('htitle').textContent=screenTitles[name]||name;
   const sub=document.getElementById('hsub');
-  if(name==='financeiro'){sub.textContent=mesAtual();}
-  else if(name==='agenda'){sub.textContent=mesAtual();}
-  else{sub.textContent=screenSubs[name];}
+  if(name==='financeiro'||name==='agenda') sub.textContent=mesAtual();
+  else if(name==='home') sub.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  else sub.textContent='';
   if(name==='home')renderHome();
   if(name==='tarefas')renderTarefas();
   if(name==='financeiro')renderFinanceiro();
   if(name==='habitos')renderHabitos();
   if(name==='notas')renderNotas();
   if(name==='agenda')renderAgenda();
+  if(name==='config'){document.getElementById('sheets-id-input').value=state.sheetsId||SHEETS_ID_DEFAULT;}
 }
 
 function switchTab(ctx,tab,btn){
-  if(ctx==='t'){
-    ['hoje','semana','todas'].forEach(t=>{document.getElementById('t-'+t).style.display=t===tab?'block':'none';});
-    renderTarefasTab(tab);
-  } else if(ctx==='f'){
-    ['lanc','resumo'].forEach(t=>{document.getElementById('f-'+t).style.display=t===tab?'block':'none';});
-    renderFinanceiro();
-  } else if(ctx==='h'){
-    ['hoje','historico'].forEach(t=>{document.getElementById('h-'+t).style.display=t===tab?'block':'none';});
-    renderHabitos();
-  }
+  if(ctx==='t'){['hoje','semana','todas'].forEach(t=>{document.getElementById('t-'+t).style.display=t===tab?'block':'none';});renderTarefasTab(tab);}
+  else if(ctx==='f'){['lanc','resumo'].forEach(t=>{document.getElementById('f-'+t).style.display=t===tab?'block':'none';});}
+  else if(ctx==='h'){['hoje','historico'].forEach(t=>{document.getElementById('h-'+t).style.display=t===tab?'block':'none';});renderHabitos();}
   btn.closest('.tab-row').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
 }
@@ -526,38 +623,21 @@ function renderHome(){
   const done=t.filter(t=>t.done).length;
   const h=state.habitos;
   const hdone=h.filter(h=>h.historico[h.historico.length-1]).length;
-  const apagar=state.gastos.filter(g=>g.status==='A Pagar').reduce((a,g)=>a+Number(g.valor),0);
   const saidas=state.gastos.reduce((a,g)=>a+Number(g.valor),0);
-  const saldo=state.entradas-saidas;
-  const n=new Date();
-  document.getElementById('home-mes').textContent=n.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
-  document.getElementById('home-saldo').textContent=fmtBRL(saldo);
+  const apagar=state.gastos.filter(g=>g.status==='A Pagar').reduce((a,g)=>a+Number(g.valor),0);
+  document.getElementById('home-mes').textContent=mesAtual();
+  document.getElementById('home-saldo').textContent=fmtBRL(state.entradas-saidas);
   document.getElementById('home-apagar').textContent=fmtBRL(apagar);
-  document.getElementById('home-vcto').textContent='Vence dia 10';
   document.getElementById('home-tasks').textContent=pending+' pendente'+(pending===1?'':'s');
   document.getElementById('home-tasks-done').textContent=done+' concluída'+(done===1?'':'s');
   document.getElementById('home-habits').textContent=hdone+' de '+h.length;
-  // hab list
-  const hl=document.getElementById('home-hab-list');
-  hl.innerHTML=h.map(hab=>{
+  document.getElementById('google-banner').style.display=state.googleToken?'none':'flex';
+  document.getElementById('home-hab-list').innerHTML=h.map(hab=>{
     const d=hab.historico[hab.historico.length-1];
-    return`<div class="habit-row">
-      <div class="habit-check${d?' done':''}" onclick="toggleHabitHome(${hab.id})">${d?'✓':''}</div>
-      <span style="flex:1;font-size:14px">${hab.icone} ${hab.nome}</span>
-      <span class="habit-streak">🔥 ${streak(hab.historico)}</span>
-    </div>`;
+    return`<div class="habit-row"><div class="habit-check${d?' done':''}" onclick="toggleHabitHome(${hab.id})"></div><span style="flex:1;font-size:14px">${hab.icone} ${hab.nome}</span><span class="habit-streak">🔥 ${streak(hab.historico)}</span></div>`;
   }).join('');
-  // task list
-  const tl=document.getElementById('home-task-list');
   const top=state.tarefas.filter(t=>!t.done).slice(0,3);
-  if(!top.length){tl.innerHTML='<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">Sem tarefas pendentes!</div></div>';return;}
-  tl.innerHTML=top.map(t=>`<div class="task-item">
-    <div class="task-check${t.done?' done':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div>
-    <div style="flex:1">
-      <div class="task-name${t.done?' done':''}">${t.desc}</div>
-      <div class="task-meta"><span class="cat-badge ${catClass(t.cat)}">${t.cat}</span>${prioLabel(t.prio)}</div>
-    </div>
-  </div>`).join('');
+  document.getElementById('home-task-list').innerHTML=top.length?top.map(t=>`<div class="task-item"><div class="task-check${t.done?' done':''}" onclick="toggleTask(${t.id})"></div><div style="flex:1"><div class="task-name">${t.desc}</div><div class="task-meta"><span class="cat-badge ${catClass(t.cat)}">${t.cat}</span>${prioLabel(t.prio)}</div></div></div>`).join(''):'<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">Sem tarefas pendentes!</div></div>';
 }
 
 // ---- TAREFAS ----
@@ -568,189 +648,120 @@ function renderTarefasTab(tab){
   else if(tab==='semana'){const nw=nextWeek();items=state.tarefas.filter(t=>t.data>today()&&t.data<=nw);}
   else items=state.tarefas;
   const el=document.getElementById('t-'+tab);
-  if(!items.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Nenhuma tarefa aqui ainda.</div></div>';return;}
+  if(!items.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Nenhuma tarefa aqui.</div></div>';return;}
   if(tab==='todas'){
     const cats=[...new Set(items.map(t=>t.cat))];
-    el.innerHTML=cats.map(cat=>{
-      const ctasks=items.filter(t=>t.cat===cat);
-      return`<div class="section-label">${cat}</div><div class="card-block">${ctasks.map(t=>taskRow(t)).join('')}</div>`;
-    }).join('');
+    el.innerHTML=cats.map(cat=>`<div class="section-label">${cat}</div><div class="card-block">${items.filter(t=>t.cat===cat).map(taskRow).join('')}</div>`).join('');
   } else {
-    el.innerHTML=`<div class="card-block">${items.map(t=>taskRow(t)).join('')}</div>`;
+    el.innerHTML=`<div class="card-block">${items.map(taskRow).join('')}</div>`;
   }
 }
-
 function taskRow(t){
-  return`<div class="task-item">
-    <div class="task-check${t.done?' done':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div>
-    <div style="flex:1">
-      <div class="task-name${t.done?' done':''}">${t.desc}</div>
-      <div class="task-meta"><span class="cat-badge ${catClass(t.cat)}">${t.cat}</span>${prioLabel(t.prio)}${t.hora?' · '+t.hora:''}</div>
-    </div>
-  </div>`;
+  return`<div class="task-item"><div class="task-check${t.done?' done':''}" onclick="toggleTask(${t.id})"></div><div style="flex:1"><div class="task-name${t.done?' done':''}">${t.desc}</div><div class="task-meta"><span class="cat-badge ${catClass(t.cat)}">${t.cat}</span>${prioLabel(t.prio)}${t.hora?' · '+t.hora:''}</div></div></div>`;
 }
-
 function toggleTask(id){
   const t=state.tarefas.find(t=>t.id===id);
   if(t){t.done=!t.done;saveState();}
   const active=document.querySelector('.screen.active').id.replace('s-','');
   if(active==='home')renderHome();else renderTarefas();
 }
-
 function toggleHabitHome(id){
   const h=state.habitos.find(h=>h.id===id);
-  if(h){const last=h.historico.length-1;h.historico[last]=h.historico[last]?0:1;saveState();}
+  if(h){const l=h.historico.length-1;h.historico[l]=h.historico[l]?0:1;saveState();}
   renderHome();
 }
-
 function saveTarefa(){
   const desc=document.getElementById('t-desc').value.trim();
   if(!desc)return alert('Adicione uma descrição.');
   const cat=document.querySelector('#t-cats .cat-opt.active')?.textContent||'Pessoal';
-  const prio=document.querySelector('#t-prios .prio-opt[class*="sel-"]')?.textContent.trim().toLowerCase().replace('● ','') || 'media';
+  const prioEl=document.querySelector('.prio-opt[class*="sel-"]');
+  const prio=prioEl?prioEl.textContent.replace('● ','').toLowerCase():'media';
   const data=document.getElementById('t-data').value||today();
   const hora=document.getElementById('t-hora').value;
   state.tarefas.push({id:state.nextId++,desc,cat,prio,data,hora,done:false});
-  saveState();
-  closeModal('m-tarefa');
+  saveState();closeModal('m-tarefa');
   document.getElementById('t-desc').value='';
-  renderTarefas();
-  renderHome();
+  renderTarefas();renderHome();
 }
 
 // ---- FINANCEIRO ----
 function renderFinanceiro(){
-  renderLanc();renderResumo();
-}
-function renderLanc(){
-  const el=document.getElementById('f-lanc');
   const apagar=state.gastos.filter(g=>g.status==='A Pagar').reduce((a,g)=>a+Number(g.valor),0);
   const saidas=state.gastos.reduce((a,g)=>a+Number(g.valor),0);
-  const saldo=state.entradas-saidas;
-  el.innerHTML=`<div class="stats-row">
-    <div class="stat-card"><div class="stat-label">Entradas</div><div class="stat-val c-teal" style="font-size:18px">${fmtBRL(state.entradas)}</div></div>
-    <div class="stat-card"><div class="stat-label">A pagar</div><div class="stat-val c-amber" style="font-size:18px">${fmtBRL(apagar)}</div></div>
-  </div>
-  <div class="card-block">
-    ${state.gastos.map(g=>`<div class="fin-row">
-      <div><div class="fin-desc">${g.desc}</div><div class="fin-date">${fmtDate(g.data)} · ${g.forma}</div></div>
-      <div class="fin-right"><span class="status-badge ${g.status==='Pago'?'status-pago':'status-apagar'}">${g.status}</span><span class="fin-valor">-${fmtBRL(g.valor)}</span></div>
-    </div>`).join('')}
-  </div>`;
-}
-function renderResumo(){
-  const el=document.getElementById('f-resumo');
-  const saidas=state.gastos.reduce((a,g)=>a+Number(g.valor),0);
+  document.getElementById('f-lanc').innerHTML=`
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Entradas</div><div class="stat-val c-teal" style="font-size:20px">${fmtBRL(state.entradas)}</div></div>
+      <div class="stat-card"><div class="stat-label">A pagar</div><div class="stat-val c-amber" style="font-size:20px">${fmtBRL(apagar)}</div></div>
+    </div>
+    <div class="card-block">${state.gastos.map(g=>`<div class="fin-row"><div><div class="fin-desc">${g.desc}</div><div class="fin-date">${fmtDate(g.data)} · ${g.forma}${g.vcto?' · vence '+g.vcto:''}</div></div><div class="fin-right"><span class="status-badge ${g.status==='Pago'?'status-pago':'status-apagar'}">${g.status}</span><span class="fin-valor">-${fmtBRL(g.valor)}</span></div></div>`).join('')}</div>`;
   const pago=state.gastos.filter(g=>g.status==='Pago').reduce((a,g)=>a+Number(g.valor),0);
-  const apagar=saidas-pago;
   const saldo=state.entradas-saidas;
-  const maxVal=state.entradas||1;
-  el.innerHTML=`<div class="card-block">
-    <div style="text-align:center;padding:12px 0 16px">
-      <div style="font-size:12px;color:var(--txt2);margin-bottom:6px">Saldo restante</div>
-      <div style="font-size:32px;font-weight:700;color:var(--teal-l)">${fmtBRL(saldo)}</div>
-    </div>
-    <div style="height:1px;background:var(--bg3);margin-bottom:14px"></div>
-    <div class="fin-row"><span style="color:var(--txt2)">Entradas</span><span style="color:var(--teal-l);font-weight:600">${fmtBRL(state.entradas)}</span></div>
-    <div class="fin-row"><span style="color:var(--txt2)">Total saídas</span><span style="color:var(--coral-l);font-weight:600">${fmtBRL(saidas)}</span></div>
-    <div class="fin-row"><span style="color:var(--txt2)">Pago</span><span style="font-weight:600">${fmtBRL(pago)}</span></div>
-    <div class="fin-row"><span style="color:var(--txt2)">A pagar</span><span style="color:var(--amber-l);font-weight:600">${fmtBRL(apagar)}</span></div>
-  </div>
-  <div class="card-block">
-    <div style="font-size:12px;color:var(--txt2);margin-bottom:12px">Distribuição</div>
-    <div class="bar-chart">
-      <div class="bar-item"><div class="bar-label-row"><span>Entradas</span><span class="bar-val">${fmtBRL(state.entradas)}</span></div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--teal)"></div></div></div>
-      <div class="bar-item"><div class="bar-label-row"><span>Pago</span><span class="bar-val">${fmtBRL(pago)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,(pago/maxVal)*100).toFixed(1)}%;background:var(--coral)"></div></div></div>
-      <div class="bar-item"><div class="bar-label-row"><span>A pagar</span><span class="bar-val">${fmtBRL(apagar)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,(apagar/maxVal)*100).toFixed(1)}%;background:var(--amber)"></div></div></div>
-    </div>
-  </div>`;
+  const max=state.entradas||1;
+  document.getElementById('f-resumo').innerHTML=`
+    <div class="card-block"><div style="text-align:center;padding:12px 0 16px"><div style="font-size:12px;color:var(--txt2);margin-bottom:6px">Saldo restante</div><div style="font-size:32px;font-weight:700;color:var(--teal-l)">${fmtBRL(saldo)}</div></div><div style="height:1px;background:var(--bg3);margin-bottom:14px"></div><div class="fin-row"><span style="color:var(--txt2)">Entradas</span><span style="color:var(--teal-l);font-weight:600">${fmtBRL(state.entradas)}</span></div><div class="fin-row"><span style="color:var(--txt2)">Total saídas</span><span style="color:var(--coral-l);font-weight:600">${fmtBRL(saidas)}</span></div><div class="fin-row"><span style="color:var(--txt2)">Pago</span><span style="font-weight:600">${fmtBRL(pago)}</span></div><div class="fin-row"><span style="color:var(--txt2)">A pagar</span><span style="color:var(--amber-l);font-weight:600">${fmtBRL(apagar)}</span></div></div>
+    <div class="card-block"><div style="font-size:12px;color:var(--txt2);margin-bottom:12px">Distribuição</div><div class="bar-chart">
+      <div><div class="bar-label-row"><span>Entradas</span><span style="color:var(--txt2);font-size:12px">${fmtBRL(state.entradas)}</span></div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--teal)"></div></div></div>
+      <div><div class="bar-label-row"><span>Pago</span><span style="color:var(--txt2);font-size:12px">${fmtBRL(pago)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,(pago/max)*100).toFixed(1)}%;background:var(--coral)"></div></div></div>
+      <div><div class="bar-label-row"><span>A pagar</span><span style="color:var(--txt2);font-size:12px">${fmtBRL(apagar)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,(apagar/max)*100).toFixed(1)}%;background:var(--amber)"></div></div></div>
+    </div></div>`;
 }
-
-function toggleVcto(show){
-  document.getElementById('vcto-box').style.display=show?'block':'none';
-}
-function saveGasto(){
+async function saveGasto(){
   const desc=document.getElementById('g-desc').value.trim();
   const valor=parseFloat(document.getElementById('g-valor').value);
   if(!desc||isNaN(valor)||valor<=0)return alert('Preencha descrição e valor.');
-  const forma=document.querySelector('[data-seg="g-forma"].active')?.textContent||'Cartão';
-  const status=document.querySelector('[data-seg="g-status"].active')?.textContent||'A Pagar';
+  const forma=document.querySelector('#seg-forma .seg-btn.active')?.textContent||'Cartão';
+  const status=document.querySelector('#seg-status .seg-btn.active')?.textContent||'A Pagar';
   const data=document.getElementById('g-data').value||today();
   const vcto=forma==='Cartão'?calcVcto():'';
-  state.gastos.unshift({id:state.nextId++,desc,valor,forma,status,data,vcto});
+  const gasto={id:state.nextId++,desc,valor,forma,status,data,vcto};
+  state.gastos.unshift(gasto);
   saveState();
   closeModal('m-gasto');
   document.getElementById('g-desc').value='';
   document.getElementById('g-valor').value='';
   renderFinanceiro();renderHome();
+  // send to sheets if connected and switch is on
+  const sw=document.getElementById('g-sheets-sw');
+  if(state.googleToken&&sw&&sw.classList.contains('on')){
+    await sendToSheets(gasto);
+  }
 }
 
 // ---- HABITOS ----
 function renderHabitos(){
-  renderHabitosHoje();renderHabitosHistorico();
-}
-function renderHabitosHoje(){
   const el=document.getElementById('h-hoje');
-  if(!state.habitos.length){el.innerHTML='<div class="empty"><div class="empty-icon">🔥</div><div class="empty-text">Adicione seu primeiro hábito!</div></div>';return;}
-  el.innerHTML=`<div class="card-block">${state.habitos.map(h=>{
+  if(!state.habitos.length){el.innerHTML='<div class="empty"><div class="empty-icon">🔥</div><div class="empty-text">Adicione seu primeiro hábito!</div></div>';}
+  else el.innerHTML=`<div class="card-block">${state.habitos.map(h=>{
     const d=h.historico[h.historico.length-1];
-    const s=streak(h.historico);
     const dots=h.historico.slice(-7).map((v,i)=>`<div class="dot${v?' done':''}${i===6?' today':''}"></div>`).join('');
-    return`<div class="habit-row">
-      <div class="habit-check${d?' done':''}" onclick="toggleHabit(${h.id})">${d?'✓':''}</div>
-      <div style="flex:1"><div style="font-size:14px">${h.icone} ${h.nome}</div></div>
-      <span class="habit-streak" style="margin-right:8px">🔥 ${s}</span>
-      <div class="week-dots">${dots}</div>
-    </div>`;
+    return`<div class="habit-row"><div class="habit-check${d?' done':''}" onclick="toggleHabit(${h.id})"></div><div style="flex:1"><div style="font-size:14px">${h.icone} ${h.nome}</div></div><span class="habit-streak" style="margin-right:8px">🔥 ${streak(h.historico)}</span><div class="week-dots">${dots}</div></div>`;
   }).join('')}</div>`;
-}
-function renderHabitosHistorico(){
-  const el=document.getElementById('h-historico');
-  if(!state.habitos.length){el.innerHTML='';return;}
-  el.innerHTML=`<div class="card-block">
-    <div style="font-size:12px;color:var(--txt2);margin-bottom:14px">Últimos ${state.habitos[0].historico.length} dias</div>
-    <div class="bar-chart">
-      ${state.habitos.map(h=>{
-        const pct=Math.round((h.historico.filter(Boolean).length/h.historico.length)*100);
-        const colors=['var(--teal)','var(--purple)','var(--amber)','var(--coral)','var(--blue-l)'];
-        const col=colors[state.habitos.indexOf(h)%colors.length];
-        return`<div class="bar-item">
-          <div class="bar-label-row"><span>${h.icone} ${h.nome}</span><span class="bar-val" style="color:${col}">${pct}%</span></div>
-          <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div>
-        </div>`;
-      }).join('')}
-    </div>
-  </div>`;
+  const hist=document.getElementById('h-historico');
+  if(!state.habitos.length){hist.innerHTML='';return;}
+  const colors=['var(--teal)','var(--purple)','var(--amber)','var(--coral)','var(--blue-l)'];
+  hist.innerHTML=`<div class="card-block"><div style="font-size:12px;color:var(--txt2);margin-bottom:14px">Progresso acumulado</div><div class="bar-chart">${state.habitos.map((h,i)=>{const pct=Math.round((h.historico.filter(Boolean).length/h.historico.length)*100);const col=colors[i%colors.length];return`<div><div class="bar-label-row"><span>${h.icone} ${h.nome}</span><span style="color:${col};font-size:12px">${pct}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div></div>`;}).join('')}</div></div>`;
 }
 function toggleHabit(id){
   const h=state.habitos.find(h=>h.id===id);
-  if(h){const last=h.historico.length-1;h.historico[last]=h.historico[last]?0:1;saveState();}
-  renderHabitosHoje();renderHome();
+  if(h){const l=h.historico.length-1;h.historico[l]=h.historico[l]?0:1;saveState();}
+  renderHabitos();renderHome();
 }
 function saveHabito(){
   const nome=document.getElementById('hab-nome').value.trim();
   if(!nome)return alert('Dê um nome ao hábito.');
   const icone=document.querySelector('#hab-icons .icon-opt.active')?.dataset.icon||'⭐';
-  const freq=document.querySelector('[data-seg="hab-freq"].active')?.textContent||'Diário';
+  const freq=document.querySelector('#seg-freq .seg-btn.active')?.textContent||'Diário';
   state.habitos.push({id:state.nextId++,nome,icone,freq,historico:[0]});
-  saveState();
-  closeModal('m-habito');
+  saveState();closeModal('m-habito');
   document.getElementById('hab-nome').value='';
   renderHabitos();renderHome();
 }
 
 // ---- NOTAS ----
 function renderNotas(filter=''){
-  const el=document.getElementById('notas-list');
   let items=state.notas;
   if(filter)items=items.filter(n=>n.titulo.toLowerCase().includes(filter.toLowerCase())||n.corpo.toLowerCase().includes(filter.toLowerCase()));
-  if(!items.length){el.innerHTML='<div class="empty"><div class="empty-icon">📝</div><div class="empty-text">Nenhuma nota encontrada.</div></div>';return;}
-  el.innerHTML=items.map(n=>`<div class="nota-card" onclick="editNota(${n.id})">
-    <div class="nota-title">${n.titulo}</div>
-    <div class="nota-body">${n.corpo}</div>
-    <div>${n.tags.map(t=>`<span class="nota-tag">${t}</span>`).join('')}</div>
-    <div class="nota-date">${n.data===today()?'Hoje':fmtDate(n.data)}</div>
-  </div>`).join('');
+  document.getElementById('notas-list').innerHTML=items.length?items.map(n=>`<div class="nota-card" onclick="editNota(${n.id})"><div class="nota-title">${n.titulo}</div><div class="nota-body">${n.corpo}</div><div>${n.tags.map(t=>`<span class="nota-tag">${t}</span>`).join('')}</div><div class="nota-date">${n.data===today()?'Hoje':fmtDate(n.data)}</div></div>`).join(''):'<div class="empty"><div class="empty-icon">📝</div><div class="empty-text">Nenhuma nota encontrada.</div></div>';
 }
 function filterNotas(v){renderNotas(v);}
 function editNota(id){
@@ -769,55 +780,34 @@ function saveNota(){
   const corpo=document.getElementById('n-corpo').value.trim();
   if(!titulo)return alert('Adicione um título.');
   const tags=document.getElementById('n-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
-  if(state.editNota){
-    const n=state.notas.find(n=>n.id===state.editNota);
-    if(n){n.titulo=titulo;n.corpo=corpo;n.tags=tags;n.data=today();}
-  } else {
-    state.notas.unshift({id:state.nextId++,titulo,corpo,tags,data:today()});
-  }
-  saveState();
-  closeModal('m-nota');
-  renderNotas();
+  if(state.editNota){const n=state.notas.find(n=>n.id===state.editNota);if(n){n.titulo=titulo;n.corpo=corpo;n.tags=tags;n.data=today();}}
+  else state.notas.unshift({id:state.nextId++,titulo,corpo,tags,data:today()});
+  saveState();closeModal('m-nota');renderNotas();
 }
 function deleteNota(){
   if(!confirm('Excluir esta nota?'))return;
   state.notas=state.notas.filter(n=>n.id!==state.editNota);
-  saveState();
-  closeModal('m-nota');
-  renderNotas();
+  saveState();closeModal('m-nota');renderNotas();
 }
 
 // ---- AGENDA ----
-function renderAgenda(){
-  renderCal();renderEventos();
-}
+function renderAgenda(){renderCal();renderEventos();}
 function renderCal(){
   const y=state.calYear,m=state.calMonth;
-  const monthNames=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  document.getElementById('cal-title').textContent=monthNames[m]+' '+y;
+  const months=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.getElementById('cal-title').textContent=months[m]+' '+y;
   const first=new Date(y,m,1).getDay();
   const days=new Date(y,m+1,0).getDate();
   const todayStr=today();
-  const eventDays=new Set(state.eventos.map(e=>e.data?new Date(e.data+'T12:00'):null).filter(Boolean).map(d=>d.getFullYear()===y&&d.getMonth()===m?d.getDate():null).filter(Boolean));
+  const eventDays=new Set(state.eventos.filter(e=>e.data).map(e=>{const d=new Date(e.data+'T12:00');return(d.getFullYear()===y&&d.getMonth()===m)?d.getDate():null;}).filter(Boolean));
   let html='<div class="cal-hdr">D</div><div class="cal-hdr">S</div><div class="cal-hdr">T</div><div class="cal-hdr">Q</div><div class="cal-hdr">Q</div><div class="cal-hdr">S</div><div class="cal-hdr">S</div>';
   for(let i=0;i<first;i++)html+='<div class="cal-day other-month"></div>';
-  for(let d=1;d<=days;d++){
-    const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const isToday=ds===todayStr;
-    const hasEv=eventDays.has(d);
-    html+=`<div class="cal-day${isToday?' today':''}${hasEv?' has-event':''}">${d}</div>`;
-  }
+  for(let d=1;d<=days;d++){const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');html+=`<div class="cal-day${ds===todayStr?' today':''}${eventDays.has(d)?' has-event':''}">${d}</div>`;}
   document.getElementById('cal-grid').innerHTML=html;
 }
 function renderEventos(){
-  const el=document.getElementById('cal-events');
   const evs=state.eventos.sort((a,b)=>(a.data||'').localeCompare(b.data||''));
-  if(!evs.length){el.innerHTML='<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Nenhum evento ainda.</div></div>';return;}
-  el.innerHTML=evs.map(e=>`<div class="event-item">
-    <div class="event-dot" style="background:${e.cor||'var(--purple)'}"></div>
-    <div class="event-time">${e.hora||fmtDate(e.data)}</div>
-    <div><div class="event-name">${e.titulo}</div>${e.local?`<div class="event-sub">${e.local}</div>`:''}</div>
-  </div>`).join('');
+  document.getElementById('cal-events').innerHTML=evs.length?evs.map(e=>`<div class="event-item"><div class="event-dot" style="background:${e.cor||'var(--purple)'}"></div><div class="event-time">${e.hora||fmtDate(e.data)}</div><div><div class="event-name">${e.titulo}</div>${e.local?`<div class="event-sub">${e.local}</div>`:''}</div></div>`).join(''):'<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Nenhum evento ainda.</div></div>';
 }
 function changeMonth(dir){
   state.calMonth+=dir;
@@ -832,69 +822,48 @@ function saveEvento(){
   const hora=document.getElementById('ev-hora').value;
   const local=document.getElementById('ev-local').value.trim();
   const cores=['var(--purple)','var(--teal)','var(--amber)','var(--coral)','var(--blue-l)'];
-  const cor=cores[Math.floor(Math.random()*cores.length)];
-  state.eventos.push({id:state.nextId++,titulo,data,hora,local,cor});
-  saveState();
-  closeModal('m-evento');
+  state.eventos.push({id:state.nextId++,titulo,data,hora,local,cor:cores[Math.floor(Math.random()*cores.length)]});
+  saveState();closeModal('m-evento');
   document.getElementById('ev-titulo').value='';
   renderAgenda();
 }
 
+// ---- CONFIG ----
+function saveSheetId(){
+  const val=document.getElementById('sheets-id-input').value.trim();
+  if(!val)return alert('Cole o ID da planilha.');
+  state.sheetsId=val;saveState();
+  alert('ID salvo com sucesso!');
+}
+
 // ---- MODALS ----
 function openModal(id){
-  if(id==='m-nota'){
-    if(!state.editNota){
-      document.getElementById('m-nota-title').textContent='Nova nota';
-      document.getElementById('n-titulo').value='';
-      document.getElementById('n-corpo').value='';
-      document.getElementById('n-tags').value='';
-      document.getElementById('n-del-btn').style.display='none';
-    }
+  if(id==='m-nota'&&!state.editNota){
+    document.getElementById('m-nota-title').textContent='Nova nota';
+    document.getElementById('n-titulo').value='';
+    document.getElementById('n-corpo').value='';
+    document.getElementById('n-tags').value='';
+    document.getElementById('n-del-btn').style.display='none';
   }
-  if(id==='m-tarefa'){document.getElementById('t-data').value=today();}
-  if(id==='m-gasto'){document.getElementById('g-data').value=today();}
-  if(id==='m-evento'){document.getElementById('ev-data').value=today();}
+  if(id==='m-tarefa') document.getElementById('t-data').value=today();
+  if(id==='m-gasto') document.getElementById('g-data').value=today();
+  if(id==='m-evento') document.getElementById('ev-data').value=today();
   document.getElementById(id).classList.add('open');
 }
-function closeModal(id){
-  document.getElementById(id).classList.remove('open');
-  if(id==='m-nota')state.editNota=null;
-}
+function closeModal(id){document.getElementById(id).classList.remove('open');if(id==='m-nota')state.editNota=null;}
 function bgClose(e,id){if(e.target===document.getElementById(id))closeModal(id);}
 function toggleSw(el){el.classList.toggle('on');}
-
-// seg buttons — need data-seg
-function selSeg(btn,group){
-  if(!group){group=btn.closest('.seg-control').dataset.group;}
-  btn.closest('.seg-control').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  btn.dataset.seg=group;
-}
-// fix: mark all seg btns with their group on load
-document.querySelectorAll('.seg-control').forEach((ctrl,i)=>{
-  const group='sg'+i;
-  ctrl.dataset.group=group;
-  ctrl.querySelectorAll('.seg-btn').forEach(b=>{b.dataset.seg=group;});
-});
-
-function selCat(el){
-  el.closest('.cat-row').querySelectorAll('.cat-opt').forEach(o=>o.classList.remove('active'));
-  el.classList.add('active');
-}
-function selPrio(el,type){
-  el.closest('.prio-row').querySelectorAll('.prio-opt').forEach(o=>{o.className='prio-opt';});
-  el.classList.add('sel-'+type);
-}
-function selIcon(el){
-  el.closest('.icon-grid').querySelectorAll('.icon-opt').forEach(o=>o.classList.remove('active'));
-  el.classList.add('active');
-}
+function selSeg(btn){btn.closest('.seg-control').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function selCat(el){el.closest('.cat-row').querySelectorAll('.cat-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
+function selPrio(el,type){el.closest('.prio-row').querySelectorAll('.prio-opt').forEach(o=>o.className='prio-opt');el.classList.add('sel-'+type);}
+function selIcon(el){el.closest('.icon-grid').querySelectorAll('.icon-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
 
 // ---- INIT ----
 loadState();
-const sub=document.getElementById('hsub');
-sub.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+document.getElementById('hsub').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
 renderHome();
+updateSheetsUI(!!state.googleToken);
+window.addEventListener('load', ()=>{ setTimeout(initGoogleClient, 1000); });
 </script>
 </body>
 </html>
