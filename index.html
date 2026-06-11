@@ -555,7 +555,7 @@ async function sendToSheets(gasto){
   // Row matches planilha: Data Pagamento | Valor | Descrição | Status
   const row = [
     fmtDate(gasto.data),
-    Number(gasto.valor),
+    'R$ '+Number(gasto.valor).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}),
     gasto.desc,
     gasto.status,
   ];
@@ -691,7 +691,7 @@ function renderFinanceiro(){
       <div class="stat-card"><div class="stat-label">Entradas</div><div class="stat-val c-teal" style="font-size:20px">${fmtBRL(state.entradas)}</div></div>
       <div class="stat-card"><div class="stat-label">A pagar</div><div class="stat-val c-amber" style="font-size:20px">${fmtBRL(apagar)}</div></div>
     </div>
-    <div class="card-block">${state.gastos.map(g=>`<div class="fin-row"><div><div class="fin-desc">${g.desc}</div><div class="fin-date">${fmtDate(g.data)} · ${g.forma}${g.vcto?' · vence '+g.vcto:''}</div></div><div class="fin-right"><span class="status-badge ${g.status==='Pago'?'status-pago':'status-apagar'}">${g.status}</span><span class="fin-valor">-${fmtBRL(g.valor)}</span></div></div>`).join('')}</div>`;
+    <div class="card-block">${state.gastos.map(g=>`<div class="fin-row"><div style="flex:1"><div class="fin-desc">${g.desc}</div><div class="fin-date">${fmtDate(g.data)} · ${g.forma}${g.vcto?' · vence '+g.vcto:''}</div></div><div class="fin-right"><span class="status-badge ${g.status==='Pago'?'status-pago':'status-apagar'}">${g.status}</span><span class="fin-valor">-${fmtBRL(g.valor)}</span><button onclick="deleteGasto(${g.id})" style="background:none;border:none;color:var(--txt3);font-size:16px;cursor:pointer;padding:0 0 0 8px;line-height:1">🗑</button></div></div>`).join('')}</div>`;
   const pago=state.gastos.filter(g=>g.status==='Pago').reduce((a,g)=>a+Number(g.valor),0);
   const saldo=state.entradas-saidas;
   const max=state.entradas||1;
@@ -703,6 +703,15 @@ function renderFinanceiro(){
       <div><div class="bar-label-row"><span>A pagar</span><span style="color:var(--txt2);font-size:12px">${fmtBRL(apagar)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,(apagar/max)*100).toFixed(1)}%;background:var(--amber)"></div></div></div>
     </div></div>`;
 }
+function showToast(msg, color){
+  color=color||'var(--teal-l)';
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--bg2);color:'+color+';border:.5px solid var(--bg3);padding:10px 18px;border-radius:20px;font-size:13px;z-index:999;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.3)';
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(function(){t.remove();},3000);
+}
+
 async function saveGasto(){
   const desc=document.getElementById('g-desc').value.trim();
   const valor=parseFloat(document.getElementById('g-valor').value);
@@ -718,13 +727,26 @@ async function saveGasto(){
   document.getElementById('g-desc').value='';
   document.getElementById('g-valor').value='';
   renderFinanceiro();renderHome();
-  // send to sheets if connected and switch is on
   const sw=document.getElementById('g-sheets-sw');
-  if(state.googleToken&&sw&&sw.classList.contains('on')){
-    await sendToSheets(gasto);
+  if(sw&&sw.classList.contains('on')){
+    if(!state.googleToken){
+      showToast('Reconecte o Google Sheets nas configurações','var(--amber-l)');
+      return;
+    }
+    const ok=await sendToSheets(gasto);
+    if(ok) showToast('Enviado para a planilha');
+    else showToast('Erro ao enviar — reconecte o Google','var(--amber-l)');
+  } else {
+    showToast('Lancamento salvo');
   }
 }
 
+function deleteGasto(id){
+  if(!confirm('Excluir este lançamento?'))return;
+  state.gastos=state.gastos.filter(g=>g.id!==id);
+  saveState();
+  renderFinanceiro();renderHome();
+}
 // ---- HABITOS ----
 function renderHabitos(){
   const el=document.getElementById('h-hoje');
