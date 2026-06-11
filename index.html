@@ -515,7 +515,14 @@ async function syncFromSheets(){
   const sheetName=MONTHS[m]+'-'+String(y).slice(2);
   showToast('Sincronizando planilha...');
   try{
-    const url='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+encodeSheetName(sheetName)+'!D7:G?majorDimension=ROWS';
+    // Get sheet metadata to find numeric sheetId
+    const metaResp=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'?includeGridData=false',{headers:{'Authorization':'Bearer '+state.googleToken}});
+    if(!metaResp.ok){showToast('Erro ao buscar planilha','var(--coral-l)');return;}
+    const metaJson=await metaResp.json();
+    const sheetObj=metaJson.sheets&&metaJson.sheets.find(s=>s.properties.title===sheetName);
+    if(!sheetObj){showToast('Aba "'+sheetName+'" não encontrada','var(--coral-l)');return;}
+    const sheetNumId=sheetObj.properties.sheetId;
+    const url='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+sheetNumId+'!D7:G?majorDimension=ROWS';
     const resp=await fetch(url,{headers:{'Authorization':'Bearer '+state.googleToken}});
     if(!resp.ok){
       if(resp.status===401){state.googleToken=null;updateSheetsUI(false);}
@@ -584,19 +591,24 @@ async function sendToSheets(gasto){
     const sheet=meta.sheets&&meta.sheets.find(s=>s.properties.title===sheetName);
     if(!sheet){showToast('Aba "'+sheetName+'" não encontrada na planilha','var(--coral-l)');return false;}
     const sheetId=sheet.properties.sheetId;
-    // Find last row with data
-    const rangeUrl='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+encodeURIComponent(sheetName)+'!D:D';
-    const rangeResp=await fetch(rangeUrl,{headers:{'Authorization':'Bearer '+state.googleToken}});
+    // Use batchUpdate with sheetId to avoid sheet name parsing issues
+    // Find last row using sheetId-based values API with A1 notation using sheetId
+    const rangeResp=await fetch(
+      'https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+sheetId+'!D:D',
+      {headers:{'Authorization':'Bearer '+state.googleToken}}
+    );
     const rangeJson=await rangeResp.json();
     const lastRow=Math.max(DATA_START_ROW-1,(rangeJson.values||[]).length);
     const nextRow=lastRow+1;
-    // Write to next row
-    const writeUrl='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+encodeURIComponent(sheetName)+'!D'+nextRow+':G'+nextRow+'?valueInputOption=USER_ENTERED';
-    const writeResp=await fetch(writeUrl,{
-      method:'PUT',
-      headers:{'Authorization':'Bearer '+state.googleToken,'Content-Type':'application/json'},
-      body:JSON.stringify({values:[row]}),
-    });
+    // Write using sheetId numeric in range
+    const writeResp=await fetch(
+      'https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+sheetId+'!D'+nextRow+':G'+nextRow+'?valueInputOption=USER_ENTERED',
+      {
+        method:'PUT',
+        headers:{'Authorization':'Bearer '+state.googleToken,'Content-Type':'application/json'},
+        body:JSON.stringify({values:[row]}),
+      }
+    );
     if(!writeResp.ok){const e=await writeResp.json();console.error('Write error:',e);return false;}
     console.log('Sent to row:', nextRow);
     return nextRow;
