@@ -405,6 +405,7 @@ const GOOGLE_CLIENT_ID = '25270362419-a1kpsrv2gt20pelsismq0r0tkile7lq4.apps.goog
 const SHEETS_ID_DEFAULT = '1HgRdVCBCFo-0viLX9pdTGtsBNkb61m3SWMWNpaz3UfQ';
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
 const STORE_KEY = 'dashboard_v3';
+const OLD_KEYS = ['dashboard_v2','dashboard_v1'];
 const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
 let state = {
@@ -413,7 +414,15 @@ let state = {
   editNota:null,nextId:1,sheetsId:SHEETS_ID_DEFAULT,googleToken:null,
 };
 
-function loadState(){try{const s=localStorage.getItem(STORE_KEY);if(s){const p=JSON.parse(s);state={...state,...p,googleToken:null};}}catch(e){}}
+function loadState(){
+  try{
+    // Try current key first
+    let s=localStorage.getItem(STORE_KEY);
+    // Fall back to older keys to recover data
+    if(!s){for(const k of OLD_KEYS){s=localStorage.getItem(k);if(s)break;}}
+    if(s){const p=JSON.parse(s);state={...state,...p,googleToken:null};}
+  }catch(e){}
+}
 function saveState(){try{localStorage.setItem(STORE_KEY,JSON.stringify({...state,googleToken:null}));}catch(e){}}
 
 function today(){return new Date().toISOString().slice(0,10);}
