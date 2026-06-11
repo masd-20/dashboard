@@ -736,16 +736,24 @@ async function saveGasto(){
   document.getElementById('g-valor').value='';
   renderFinanceiro();renderHome();
   const sw=document.getElementById('g-sheets-sw');
+  console.log('Switch on:', sw && sw.classList.contains('on'), 'Token:', !!state.googleToken);
   if(sw&&sw.classList.contains('on')){
     if(!state.googleToken){
       showToast('Reconecte o Google Sheets nas configurações','var(--amber-l)');
       return;
     }
     const row=await sendToSheets(gasto);
-    if(row){ gasto.sheetsRow=row; saveState(); showToast('Enviado para a planilha ✅'); }
-    else showToast('Erro ao enviar — reconecte o Google','var(--amber-l)');
+    console.log('Row returned:', row);
+    if(row){
+      // Update the gasto in state with the sheetsRow
+      const saved=state.gastos.find(g=>g.id===gasto.id);
+      if(saved){ saved.sheetsRow=row; saveState(); }
+      showToast('Enviado para a planilha ✅');
+    } else {
+      showToast('Erro ao enviar — reconecte o Google','var(--amber-l)');
+    }
   } else {
-    showToast('Lancamento salvo');
+    showToast('Lançamento salvo');
   }
 }
 
