@@ -21,7 +21,7 @@
   --radius:12px;--radius-sm:8px;
 }
 html,body{height:100%;background:var(--bg0);color:var(--txt1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;overflow:hidden}
-.app{max-width:430px;margin:0 auto;height:100%;display:flex;flex-direction:column;background:var(--bg0);position:relative}
+.app{max-width:430px;margin:0 auto;height:100%;display:flex;flex-direction:column;background:var(--bg0)}
 .header{padding:52px 18px 10px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
 .header-title{font-size:20px;font-weight:600}
 .header-sub{font-size:12px;color:var(--txt2);margin-top:2px}
@@ -43,7 +43,7 @@ html,body{height:100%;background:var(--bg0);color:var(--txt1);font-family:-apple
 .tab-btn.active{background:var(--purple-d);color:var(--purple-l);border-color:var(--purple-d)}
 .task-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:.5px solid var(--bg3)}
 .task-item:last-child{border-bottom:none}
-.task-check{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--bg4);cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .2s;background:transparent}
+.task-check{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--bg4);cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .task-check.done{background:var(--purple);border-color:var(--purple)}
 .task-check.done::after{content:'✓';color:#fff;font-size:13px;font-weight:700}
 .task-name{font-size:14px;color:var(--txt1);line-height:1.4}
@@ -64,8 +64,7 @@ html,body{height:100%;background:var(--bg0);color:var(--txt1);font-family:-apple
 .habit-streak{font-size:12px;color:var(--amber);margin-left:auto;white-space:nowrap}
 .week-dots{display:flex;gap:4px;margin-left:8px}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--bg3)}
-.dot.done{background:var(--teal)}
-.dot.today{background:var(--purple)}
+.dot.done{background:var(--teal)}.dot.today{background:var(--purple)}
 .fin-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:.5px solid var(--bg3)}
 .fin-row:last-child{border-bottom:none}
 .fin-desc{color:var(--txt1);font-size:14px}
@@ -152,6 +151,9 @@ textarea.form-input{resize:none;line-height:1.6}
 .connect-btn{padding:8px 14px;background:var(--purple-d);border:none;border-radius:var(--radius-sm);color:#fff;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:inherit}
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--bg3);color:var(--txt1);padding:10px 18px;border-radius:20px;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;white-space:nowrap;pointer-events:none}
 .toast.show{opacity:1}
+.sync-btn{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg2);border:.5px solid var(--bg3);border-radius:var(--radius-sm);color:var(--txt2);font-size:13px;cursor:pointer;font-family:inherit;margin-bottom:10px;width:100%;transition:all .15s}
+.sync-btn:active{background:var(--bg3)}
+.loading{opacity:.5;pointer-events:none}
 </style>
 </head>
 <body>
@@ -174,7 +176,7 @@ textarea.form-input{resize:none;line-height:1.6}
       </div>
       <div class="section-label">Financeiro — <span id="home-mes"></span></div>
       <div class="stats-row">
-        <div class="stat-card"><div class="stat-label">Saldo restante</div><div class="stat-val c-teal" id="home-saldo">R$ 0</div><div class="stat-change">Após despesas</div></div>
+        <div class="stat-card"><div class="stat-label">Entradas</div><div class="stat-val c-teal" id="home-entradas">R$ 0</div><div class="stat-change">No mês</div></div>
         <div class="stat-card"><div class="stat-label">A pagar</div><div class="stat-val c-amber" id="home-apagar">R$ 0</div><div class="stat-change">Vence dia 10</div></div>
       </div>
       <div class="stats-row">
@@ -256,7 +258,7 @@ textarea.form-input{resize:none;line-height:1.6}
           </div>
           <button class="connect-btn" id="sheets-connect-btn" onclick="signInGoogle()">Conectar</button>
         </div>
-        <div class="hint">Lançamentos financeiros enviados automaticamente para sua planilha.</div>
+        <div class="hint">Lançamentos sincronizados automaticamente com sua planilha.</div>
       </div>
       <div class="section-label">Planilha</div>
       <div class="card-block">
@@ -269,9 +271,7 @@ textarea.form-input{resize:none;line-height:1.6}
       </div>
       <div class="section-label">Sobre</div>
       <div class="card-block">
-        <div style="font-size:13px;color:var(--txt2);line-height:1.8">
-          <div>Versão 1.0 · Desenvolvido com Claude (Anthropic)</div>
-        </div>
+        <div style="font-size:13px;color:var(--txt2);line-height:1.8">Versão 1.0 · Desenvolvido com Claude (Anthropic)</div>
       </div>
     </div>
 
@@ -329,7 +329,7 @@ textarea.form-input{resize:none;line-height:1.6}
     <div class="form-group" id="vcto-box">
       <label class="form-label">Vencimento automático</label>
       <div class="vcto-info" id="vcto-info">📅 Calculando...</div>
-      <div class="hint">Calculado automaticamente (fatura vira dia 04, vence dia 10)</div>
+      <div class="hint">Fatura vira dia 04, vence dia 10</div>
     </div>
     <div class="form-group"><label class="form-label">Data do gasto</label><input class="form-input" id="g-data" type="date" oninput="atualizaVcto()"></div>
     <div class="form-group"><label class="form-label">Status</label>
@@ -340,7 +340,7 @@ textarea.form-input{resize:none;line-height:1.6}
     </div>
     <div class="form-group">
       <div class="switch-row"><span style="font-size:13px;color:var(--txt2)">Enviar para Google Sheets</span><div class="switch on" id="g-sheets-sw" onclick="toggleSw(this)"></div></div>
-      <div class="hint" id="sheets-hint-text">Conecte o Google Sheets nas configurações para ativar.</div>
+      <div class="hint" id="sheets-hint-text">Conecte o Google Sheets nas configurações.</div>
     </div>
     <button class="add-btn" onclick="saveGasto()">Salvar lançamento</button>
   </div>
@@ -401,33 +401,40 @@ textarea.form-input{resize:none;line-height:1.6}
 </div>
 
 <script>
+// ---- CONSTANTS ----
 const GOOGLE_CLIENT_ID = '25270362419-a1kpsrv2gt20pelsismq0r0tkile7lq4.apps.googleusercontent.com';
 const SHEETS_ID_DEFAULT = '1HgRdVCBCFo-0viLX9pdTGtsBNkb61m3SWMWNpaz3UfQ';
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
-const STORE_KEY = 'dashboard_v3';
-const OLD_KEYS = ['dashboard_v2','dashboard_v1'];
+const STORE_KEY = 'dashboard_v4';
 const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+// Planilha columns: D=data, E=valor, F=descrição, G=status. Data starts row 7.
+const COL_DATA = 3; // D = index 3
+const COL_VALOR = 4; // E
+const COL_DESC = 5;  // F
+const COL_STATUS = 6; // G
+const DATA_START_ROW = 7;
 
+// ---- STATE ----
 let state = {
-  tarefas:[],gastos:[],habitos:[],notas:[],eventos:[],
-  entradas:0,calMonth:new Date().getMonth(),calYear:new Date().getFullYear(),
-  editNota:null,nextId:1,sheetsId:SHEETS_ID_DEFAULT,googleToken:null,
+  tarefas:[], gastos:[], habitos:[], notas:[], eventos:[],
+  calMonth:new Date().getMonth(), calYear:new Date().getFullYear(),
+  editNota:null, nextId:1, sheetsId:SHEETS_ID_DEFAULT, googleToken:null,
 };
 
 function loadState(){
   try{
-    // Try current key first
-    let s=localStorage.getItem(STORE_KEY);
-    // Fall back to older keys to recover data
-    if(!s){for(const k of OLD_KEYS){s=localStorage.getItem(k);if(s)break;}}
+    const s=localStorage.getItem(STORE_KEY);
     if(s){const p=JSON.parse(s);state={...state,...p,googleToken:null};}
   }catch(e){}
 }
-function saveState(){try{localStorage.setItem(STORE_KEY,JSON.stringify({...state,googleToken:null}));}catch(e){}}
+function saveState(){
+  try{localStorage.setItem(STORE_KEY,JSON.stringify({...state,googleToken:null}));}catch(e){}
+}
 
+// ---- HELPERS ----
 function today(){return new Date().toISOString().slice(0,10);}
 function fmtDate(d){if(!d)return'';try{return new Date(d+'T12:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});}catch(e){return d;}}
-function fmtBRL(v){return'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtBRL(v){return'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function mesAtual(){return new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});}
 function nextWeek(){const d=new Date();d.setDate(d.getDate()+7);return d.toISOString().slice(0,10);}
 function catClass(c){return({Pessoal:'cat-pessoal',Trabalho:'cat-trabalho','Saúde':'cat-saude',Financeiro:'cat-financeiro'})[c]||'cat-pessoal';}
@@ -439,42 +446,45 @@ function showToast(msg,color){
   t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-// Billing cycle: fatura vira dia 04, vence dia 10
-// Compra dia 04+ → fatura do mês seguinte → aba mês seguinte, vence 10 do mês seguinte
-// Compra dia 01-03 → fatura do mês atual → aba mês atual, vence 10 do mês atual
+// ---- BILLING CYCLE ----
+// Fatura vira dia 04, vence dia 10
+// Compra dia 04+: vai para aba e vencimento do mês seguinte
+// Compra dia 01-03: vai para aba e vencimento do mês atual
 function calcFaturaInfo(dataStr){
-  const d = new Date(dataStr+'T12:00');
-  let m = d.getMonth();
-  let y = d.getFullYear();
-  if(d.getDate() >= 4){ m++; if(m>11){m=0;y++;} }
-  const vcto = '10/'+String(m+1).padStart(2,'0')+'/'+y;
-  const sheetName = MONTHS[m]+'-'+String(y).slice(2);
-  return {vcto, sheetName};
+  const d=new Date(dataStr+'T12:00');
+  let m=d.getMonth(), y=d.getFullYear();
+  if(d.getDate()>=4){m++;if(m>11){m=0;y++;}}
+  return {
+    vcto:'10/'+String(m+1).padStart(2,'0')+'/'+y,
+    sheetName:MONTHS[m]+'-'+String(y).slice(2)
+  };
 }
 
 function atualizaVcto(){
-  const data = document.getElementById('g-data').value;
-  const forma = document.querySelector('#seg-forma .seg-btn.active')?.textContent||'Cartão';
-  if(forma==='Cartão' && data){
-    const {vcto} = calcFaturaInfo(data);
-    document.getElementById('vcto-info').textContent = '📅 Vence '+vcto;
-  }
+  const data=document.getElementById('g-data').value;
+  const forma=document.querySelector('#seg-forma .seg-btn.active')?.textContent||'Cartão';
+  const box=document.getElementById('vcto-box');
+  if(forma==='Pix / Dinheiro'){box.style.display='none';return;}
+  box.style.display='block';
+  if(data){const {vcto,sheetName}=calcFaturaInfo(data);document.getElementById('vcto-info').textContent='📅 Vence '+vcto+' (aba '+sheetName+')';}
 }
 
-// ---- GOOGLE ----
+// ---- GOOGLE OAUTH ----
 let tokenClient;
 function initGoogleClient(){
   if(typeof google==='undefined')return;
   tokenClient=google.accounts.oauth2.initTokenClient({
-    client_id:GOOGLE_CLIENT_ID,scope:SCOPES,
+    client_id:GOOGLE_CLIENT_ID, scope:SCOPES,
     callback:(resp)=>{
-      if(resp.error){alert('Erro Google: '+resp.error);return;}
+      if(resp.error){showToast('Erro Google: '+resp.error,'var(--coral-l)');return;}
       state.googleToken=resp.access_token;
-      updateSheetsUI(true);showToast('Google Sheets conectado ✅');
+      updateSheetsUI(true);
+      showToast('Google Sheets conectado ✅');
+      syncFromSheets();
     },
   });
 }
-function signInGoogle(){if(!tokenClient){alert('Aguarde...');return;}tokenClient.requestAccessToken();}
+function signInGoogle(){if(!tokenClient){showToast('Aguarde...');return;}tokenClient.requestAccessToken();}
 function updateSheetsUI(connected){
   const st=document.getElementById('sheets-status-text');
   const btn=document.getElementById('sheets-connect-btn');
@@ -484,60 +494,124 @@ function updateSheetsUI(connected){
     if(st)st.textContent='✅ Conectado';
     if(btn){btn.textContent='Reconectar';btn.style.background='var(--bg3)';btn.style.color='var(--txt2)';}
     if(banner)banner.style.display='none';
-    if(hint)hint.textContent='Lançamento será enviado automaticamente para sua planilha.';
-  } else {
+    if(hint)hint.textContent='Lançamentos enviados automaticamente para sua planilha.';
+  }else{
     if(st)st.textContent='Não conectado';
     if(btn){btn.textContent='Conectar';btn.style.background='var(--purple-d)';btn.style.color='#fff';}
     if(banner)banner.style.display='flex';
-    if(hint)hint.textContent='Conecte o Google Sheets nas configurações para ativar.';
+    if(hint)hint.textContent='Conecte o Google Sheets nas configurações.';
   }
+}
+
+// ---- SYNC FROM SHEETS (planilha → app) ----
+async function syncFromSheets(){
+  if(!state.googleToken)return;
+  const sheetsId=state.sheetsId||SHEETS_ID_DEFAULT;
+  // Determine current billing month sheet name
+  const now=new Date();
+  // If today is before day 04, current fatura is this month, else next month
+  let m=now.getMonth(), y=now.getFullYear();
+  if(now.getDate()>=4){m++;if(m>11){m=0;y++;}}
+  const sheetName=MONTHS[m]+'-'+String(y).slice(2);
+  showToast('Sincronizando planilha...');
+  try{
+    const url='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+encodeSheetName(sheetName)+'!D7:G?majorDimension=ROWS';
+    const resp=await fetch(url,{headers:{'Authorization':'Bearer '+state.googleToken}});
+    if(!resp.ok){
+      if(resp.status===401){state.googleToken=null;updateSheetsUI(false);}
+      showToast('Erro ao sincronizar','var(--coral-l)');return;
+    }
+    const json=await resp.json();
+    const rows=json.values||[];
+    // Parse rows into gastos — skip rows with no description
+    const gastos=[];
+    rows.forEach((row,i)=>{
+      const dataRaw=row[COL_DATA-3]||''; // col D, offset 0
+      const valorRaw=row[COL_VALOR-3]||''; // col E, offset 1
+      const desc=row[COL_DESC-3]||''; // col F, offset 2
+      const status=row[COL_STATUS-3]||''; // col G, offset 3
+      if(!desc||status==='Excluído')return;
+      // Parse valor: remove R$, spaces, convert comma to dot
+      const valorStr=String(valorRaw).replace(/R\$\s*/,'').replace(/\./g,'').replace(',','.').trim();
+      const valor=parseFloat(valorStr)||0;
+      // Parse date from dd/mm/yyyy
+      let dataISO=today();
+      if(dataRaw){
+        const parts=String(dataRaw).split('/');
+        if(parts.length===3)dataISO=parts[2]+'-'+parts[1].padStart(2,'0')+'-'+parts[0].padStart(2,'0');
+      }
+      gastos.push({
+        id:state.nextId++,
+        desc,valor,
+        forma:'Cartão', // assume cartão for planilha items
+        status:status||'A Pagar',
+        data:dataISO,
+        vcto:'10/'+String(m+1).padStart(2,'0')+'/'+y,
+        sheetsRow:DATA_START_ROW+i,
+        fromSheet:true,
+      });
+    });
+    state.gastos=gastos;
+    saveState();
+    renderFinanceiro();renderHome();
+    showToast('Planilha sincronizada ✅ ('+gastos.length+' itens)');
+  }catch(e){
+    console.error('Sync error:',e);
+    showToast('Erro na sincronização','var(--coral-l)');
+  }
+}
+
+// ---- SEND TO SHEETS (app → planilha) ----
+function encodeSheetName(name){
+  // Sheets API needs sheet name encoded without special chars in URL
+  // Use simple encoding that works
+  return encodeURIComponent(name);
 }
 
 async function sendToSheets(gasto){
   if(!state.googleToken)return false;
   const sheetsId=state.sheetsId||SHEETS_ID_DEFAULT;
   const {sheetName}=calcFaturaInfo(gasto.data);
-  const row=[fmtDate(gasto.data), Number(Number(gasto.valor).toFixed(2)), gasto.desc, gasto.status];
-  console.log('Sending to sheet:', sheetName, 'row:', row);
+  const valor=Number(Number(gasto.valor).toFixed(2));
+  const row=[fmtDate(gasto.data), valor, gasto.desc, gasto.status];
+  console.log('Sending to sheet:', sheetName, row);
   try{
-    // Sheets API requires single quotes around sheet names with hyphens, encoded as %27
-    const encodedSheet="%27"+encodeURIComponent(sheetName)+"%27";
-    const url='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+encodedSheet+':append?valueInputOption=USER_ENTERED';
-    const resp=await fetch(url,{
-      method:'POST',
+    // Use batchUpdate to append — avoids sheet name parsing issues
+    const getUrl='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'?includeGridData=false';
+    const getResp=await fetch(getUrl,{headers:{'Authorization':'Bearer '+state.googleToken}});
+    if(!getResp.ok){if(getResp.status===401){state.googleToken=null;updateSheetsUI(false);}return false;}
+    const meta=await getResp.json();
+    const sheet=meta.sheets&&meta.sheets.find(s=>s.properties.title===sheetName);
+    if(!sheet){showToast('Aba "'+sheetName+'" não encontrada na planilha','var(--coral-l)');return false;}
+    const sheetId=sheet.properties.sheetId;
+    // Find last row with data
+    const rangeUrl='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+encodeURIComponent(sheetName)+'!D:D';
+    const rangeResp=await fetch(rangeUrl,{headers:{'Authorization':'Bearer '+state.googleToken}});
+    const rangeJson=await rangeResp.json();
+    const lastRow=Math.max(DATA_START_ROW-1,(rangeJson.values||[]).length);
+    const nextRow=lastRow+1;
+    // Write to next row
+    const writeUrl='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+encodeURIComponent(sheetName)+'!D'+nextRow+':G'+nextRow+'?valueInputOption=USER_ENTERED';
+    const writeResp=await fetch(writeUrl,{
+      method:'PUT',
       headers:{'Authorization':'Bearer '+state.googleToken,'Content-Type':'application/json'},
       body:JSON.stringify({values:[row]}),
     });
-    const json=await resp.json();
-    console.log('Sheets response:', json);
-    if(!resp.ok){
-      console.error('Sheets error:',json);
-      if(resp.status===401){state.googleToken=null;updateSheetsUI(false);}
-      return false;
-    }
-    const range=json.updates&&json.updates.updatedRange;
-    if(range){
-      const parts=range.split(':');
-      const rowNum=parseInt(parts[parts.length-1].replace(/[^0-9]/g,''));
-      if(rowNum)return rowNum;
-    }
-    return true;
-  }catch(e){console.error('Sheets fetch error:',e);return false;}
+    if(!writeResp.ok){const e=await writeResp.json();console.error('Write error:',e);return false;}
+    console.log('Sent to row:', nextRow);
+    return nextRow;
+  }catch(e){console.error('sendToSheets error:',e);return false;}
 }
 
 async function markDeletedInSheets(gasto){
   if(!state.googleToken||!gasto.sheetsRow)return;
   const sheetsId=state.sheetsId||SHEETS_ID_DEFAULT;
   const {sheetName}=calcFaturaInfo(gasto.data);
-  const range=sheetName+'!G'+gasto.sheetsRow;
   try{
-    await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+range+'?valueInputOption=RAW',{
-      method:'PUT',
-      headers:{'Authorization':'Bearer '+state.googleToken,'Content-Type':'application/json'},
-      body:JSON.stringify({values:[['Excluído']]}),
-    });
+    const url='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+encodeURIComponent(sheetName)+'!G'+gasto.sheetsRow+'?valueInputOption=RAW';
+    await fetch(url,{method:'PUT',headers:{'Authorization':'Bearer '+state.googleToken,'Content-Type':'application/json'},body:JSON.stringify({values:[['Excluído']]})});
     showToast('Marcado como Excluído na planilha');
-  }catch(e){console.error('Delete mark error:',e);}
+  }catch(e){console.error('markDeleted error:',e);}
 }
 
 // ---- NAV ----
@@ -571,21 +645,22 @@ function switchTab(ctx,tab,btn){
 // ---- HOME ----
 function renderHome(){
   const t=state.tarefas.filter(t=>t.data===today());
-  const pending=t.filter(t=>!t.done).length,done=t.filter(t=>t.done).length;
+  const pending=t.filter(t=>!t.done).length, done=t.filter(t=>t.done).length;
   const hdone=state.habitos.filter(h=>h.historico[h.historico.length-1]).length;
-  const saidas=state.gastos.reduce((a,g)=>a+Number(g.valor),0);
   const apagar=state.gastos.filter(g=>g.status==='A Pagar').reduce((a,g)=>a+Number(g.valor),0);
+  const pago=state.gastos.filter(g=>g.status==='Pago').reduce((a,g)=>a+Number(g.valor),0);
+  const entradas=state.gastos.filter(g=>g.valor<0).reduce((a,g)=>a+Math.abs(Number(g.valor)),0); // negative = income if any
   document.getElementById('home-mes').textContent=mesAtual();
-  document.getElementById('home-saldo').textContent=fmtBRL(state.entradas-saidas);
+  document.getElementById('home-entradas').textContent=fmtBRL(apagar+pago);
   document.getElementById('home-apagar').textContent=fmtBRL(apagar);
   document.getElementById('home-tasks').textContent=pending+' pendente'+(pending===1?'':'s');
   document.getElementById('home-tasks-done').textContent=done+' concluída'+(done===1?'':'s');
   document.getElementById('home-habits').textContent=hdone+' de '+state.habitos.length;
   document.getElementById('google-banner').style.display=state.googleToken?'none':'flex';
-  document.getElementById('home-hab-list').innerHTML=state.habitos.map(h=>{
+  document.getElementById('home-hab-list').innerHTML=state.habitos.length?state.habitos.map(h=>{
     const d=h.historico[h.historico.length-1];
     return'<div class="habit-row"><div class="habit-check'+(d?' done':'')+'" onclick="toggleHabitHome('+h.id+')"></div><span style="flex:1;font-size:14px">'+h.icone+' '+h.nome+'</span><span class="habit-streak">🔥 '+streak(h.historico)+'</span></div>';
-  }).join('');
+  }).join(''):'<div style="color:var(--txt3);font-size:13px;text-align:center;padding:10px">Nenhum hábito cadastrado</div>';
   const top=state.tarefas.filter(t=>!t.done).slice(0,3);
   document.getElementById('home-task-list').innerHTML=top.length?top.map(t=>
     '<div class="task-item"><div class="task-check'+(t.done?' done':'')+'" onclick="toggleTask('+t.id+')"></div><div style="flex:1"><div class="task-name">'+t.desc+'</div><div class="task-meta"><span class="cat-badge '+catClass(t.cat)+'">'+t.cat+'</span>'+prioLabel(t.prio)+'</div></div></div>'
@@ -626,19 +701,23 @@ function saveTarefa(){
 
 // ---- FINANCEIRO ----
 function renderFinanceiro(){
-  const saidas=state.gastos.reduce((a,g)=>a+Number(g.valor),0);
   const apagar=state.gastos.filter(g=>g.status==='A Pagar').reduce((a,g)=>a+Number(g.valor),0);
   const pago=state.gastos.filter(g=>g.status==='Pago').reduce((a,g)=>a+Number(g.valor),0);
-  const saldo=state.entradas-saidas;
-  const max=state.entradas||1;
+  const total=apagar+pago;
+  const max=total||1;
+
+  const syncBtn='<button class="sync-btn" onclick="syncFromSheets()" '+(state.googleToken?'':'disabled style="opacity:.4"')+'>🔄 Sincronizar com planilha '+(state.googleToken?'':' (conecte o Google primeiro)')+'</button>';
+
   document.getElementById('f-lanc').innerHTML=
-    '<div class="stats-row"><div class="stat-card"><div class="stat-label">Entradas</div><div class="stat-val c-teal" style="font-size:20px">'+fmtBRL(state.entradas)+'</div></div><div class="stat-card"><div class="stat-label">A pagar</div><div class="stat-val c-amber" style="font-size:20px">'+fmtBRL(apagar)+'</div></div></div>'+
+    syncBtn+
+    '<div class="stats-row"><div class="stat-card"><div class="stat-label">Total do mês</div><div class="stat-val c-teal" style="font-size:18px">'+fmtBRL(total)+'</div></div><div class="stat-card"><div class="stat-label">A pagar</div><div class="stat-val c-amber" style="font-size:18px">'+fmtBRL(apagar)+'</div></div></div>'+
     '<div class="card-block">'+(state.gastos.length?state.gastos.map(g=>
-      '<div class="fin-row"><div style="flex:1"><div class="fin-desc">'+g.desc+'</div><div class="fin-date">'+fmtDate(g.data)+' · '+g.forma+(g.vcto?' · vence '+g.vcto:'')+'</div></div><div class="fin-right"><span class="status-badge '+(g.status==='Pago'?'status-pago':'status-apagar')+'">'+g.status+'</span><span class="fin-valor">-'+fmtBRL(g.valor)+'</span><button onclick="deleteGasto('+g.id+')" style="background:none;border:none;color:var(--txt3);font-size:16px;cursor:pointer;padding:0 0 0 8px">🗑</button></div></div>'
-    ).join(''):'<div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nenhum lançamento ainda.</div></div>')+'</div>';
+      '<div class="fin-row"><div style="flex:1"><div class="fin-desc">'+g.desc+'</div><div class="fin-date">'+fmtDate(g.data)+' · '+g.forma+(g.vcto?' · vence '+g.vcto:'')+'</div></div><div class="fin-right"><span class="status-badge '+(g.status==='Pago'?'status-pago':'status-apagar')+'">'+g.status+'</span><span class="fin-valor">'+fmtBRL(g.valor)+'</span><button onclick="deleteGasto('+g.id+')" style="background:none;border:none;color:var(--txt3);font-size:16px;cursor:pointer;padding:0 0 0 8px">🗑</button></div></div>'
+    ).join(''):'<div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nenhum lançamento. Sincronize com a planilha ou adicione manualmente.</div></div>')+'</div>';
+
   document.getElementById('f-resumo').innerHTML=
-    '<div class="card-block"><div style="text-align:center;padding:12px 0 16px"><div style="font-size:12px;color:var(--txt2);margin-bottom:6px">Saldo restante</div><div style="font-size:32px;font-weight:700;color:var(--teal-l)">'+fmtBRL(saldo)+'</div></div><div style="height:1px;background:var(--bg3);margin-bottom:14px"></div><div class="fin-row"><span style="color:var(--txt2)">Entradas</span><span style="color:var(--teal-l);font-weight:600">'+fmtBRL(state.entradas)+'</span></div><div class="fin-row"><span style="color:var(--txt2)">Total saídas</span><span style="color:var(--coral-l);font-weight:600">'+fmtBRL(saidas)+'</span></div><div class="fin-row"><span style="color:var(--txt2)">Pago</span><span style="font-weight:600">'+fmtBRL(pago)+'</span></div><div class="fin-row"><span style="color:var(--txt2)">A pagar</span><span style="color:var(--amber-l);font-weight:600">'+fmtBRL(apagar)+'</span></div></div>'+
-    '<div class="card-block"><div style="font-size:12px;color:var(--txt2);margin-bottom:12px">Distribuição</div><div class="bar-chart"><div><div class="bar-label-row"><span>Entradas</span><span style="color:var(--txt2);font-size:12px">'+fmtBRL(state.entradas)+'</span></div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--teal)"></div></div></div><div><div class="bar-label-row"><span>Pago</span><span style="color:var(--txt2);font-size:12px">'+fmtBRL(pago)+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.min(100,(pago/max)*100).toFixed(1)+'%;background:var(--coral)"></div></div></div><div><div class="bar-label-row"><span>A pagar</span><span style="color:var(--txt2);font-size:12px">'+fmtBRL(apagar)+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.min(100,(apagar/max)*100).toFixed(1)+'%;background:var(--amber)"></div></div></div></div></div>';
+    '<div class="card-block"><div style="text-align:center;padding:12px 0 16px"><div style="font-size:12px;color:var(--txt2);margin-bottom:6px">Total do mês</div><div style="font-size:32px;font-weight:700;color:var(--txt1)">'+fmtBRL(total)+'</div></div><div style="height:1px;background:var(--bg3);margin-bottom:14px"></div><div class="fin-row"><span style="color:var(--txt2)">Pago</span><span style="color:var(--teal-l);font-weight:600">'+fmtBRL(pago)+'</span></div><div class="fin-row"><span style="color:var(--txt2)">A pagar</span><span style="color:var(--amber-l);font-weight:600">'+fmtBRL(apagar)+'</span></div></div>'+
+    '<div class="card-block"><div style="font-size:12px;color:var(--txt2);margin-bottom:12px">Distribuição</div><div class="bar-chart"><div><div class="bar-label-row"><span>Pago</span><span style="color:var(--txt2);font-size:12px">'+fmtBRL(pago)+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.min(100,(pago/max)*100).toFixed(1)+'%;background:var(--teal)"></div></div></div><div><div class="bar-label-row"><span>A pagar</span><span style="color:var(--txt2);font-size:12px">'+fmtBRL(apagar)+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.min(100,(apagar/max)*100).toFixed(1)+'%;background:var(--amber)"></div></div></div></div></div>';
 }
 
 async function saveGasto(){
@@ -658,11 +737,8 @@ async function saveGasto(){
   if(sw&&sw.classList.contains('on')){
     if(!state.googleToken){showToast('Reconecte o Google Sheets','var(--amber-l)');return;}
     const row=await sendToSheets(gasto);
-    if(row){
-      const saved=state.gastos.find(g=>g.id===gasto.id);
-      if(saved){saved.sheetsRow=row;saveState();}
-      showToast('Enviado para a planilha ✅');
-    }else{showToast('Erro ao enviar — verifique conexão','var(--coral-l)');}
+    if(row){const saved=state.gastos.find(g=>g.id===gasto.id);if(saved){saved.sheetsRow=row;saveState();}showToast('Enviado para a planilha ✅');}
+    else showToast('Erro ao enviar — verifique conexão','var(--coral-l)');
   }
 }
 
@@ -735,10 +811,10 @@ function deleteNota(){
 
 // ---- AGENDA ----
 function renderAgenda(){
-  const y=state.calYear,m=state.calMonth;
+  const y=state.calYear, m=state.calMonth;
   const mNames=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   document.getElementById('cal-title').textContent=mNames[m]+' '+y;
-  const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),ts=today();
+  const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate(), ts=today();
   const evDays=new Set(state.eventos.filter(e=>e.data).map(e=>{const d=new Date(e.data+'T12:00');return(d.getFullYear()===y&&d.getMonth()===m)?d.getDate():null;}).filter(Boolean));
   let h='<div class="cal-hdr">D</div><div class="cal-hdr">S</div><div class="cal-hdr">T</div><div class="cal-hdr">Q</div><div class="cal-hdr">Q</div><div class="cal-hdr">S</div><div class="cal-hdr">S</div>';
   for(let i=0;i<first;i++)h+='<div class="cal-day" style="color:var(--txt3)"></div>';
@@ -749,12 +825,7 @@ function renderAgenda(){
     '<div class="event-item"><div class="event-dot" style="background:'+(e.cor||'var(--purple)')+'"></div><div class="event-time">'+(e.hora||fmtDate(e.data))+'</div><div><div class="event-name">'+e.titulo+'</div>'+(e.local?'<div class="event-sub">'+e.local+'</div>':'')+'</div></div>'
   ).join(''):'<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Nenhum evento ainda.</div></div>';
 }
-function changeMonth(dir){
-  state.calMonth+=dir;
-  if(state.calMonth>11){state.calMonth=0;state.calYear++;}
-  if(state.calMonth<0){state.calMonth=11;state.calYear--;}
-  renderAgenda();
-}
+function changeMonth(dir){state.calMonth+=dir;if(state.calMonth>11){state.calMonth=0;state.calYear++;}if(state.calMonth<0){state.calMonth=11;state.calYear--;}renderAgenda();}
 function saveEvento(){
   const titulo=document.getElementById('ev-titulo').value.trim();
   if(!titulo)return alert('Adicione um título.');
@@ -770,21 +841,18 @@ function saveEvento(){
 function saveSheetId(){
   const val=document.getElementById('sheets-id-input').value.trim();
   if(!val)return alert('Cole o ID da planilha.');
-  state.sheetsId=val;saveState();showToast('ID salvo com sucesso!');
+  state.sheetsId=val;saveState();showToast('ID salvo!');
 }
 
 // ---- MODALS ----
 function openModal(id){
   if(id==='m-nota'&&!state.editNota){
     document.getElementById('m-nota-title').textContent='Nova nota';
-    document.getElementById('n-titulo').value='';document.getElementById('n-corpo').value='';
-    document.getElementById('n-tags').value='';document.getElementById('n-del-btn').style.display='none';
+    ['n-titulo','n-corpo','n-tags'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('n-del-btn').style.display='none';
   }
   if(id==='m-tarefa')document.getElementById('t-data').value=today();
-  if(id==='m-gasto'){
-    document.getElementById('g-data').value=today();
-    atualizaVcto();
-  }
+  if(id==='m-gasto'){document.getElementById('g-data').value=today();atualizaVcto();}
   if(id==='m-evento')document.getElementById('ev-data').value=today();
   document.getElementById(id).classList.add('open');
 }
@@ -799,11 +867,15 @@ function selIcon(el){el.closest('.icon-grid').querySelectorAll('.icon-opt').forE
 // ---- INIT ----
 loadState();
 document.getElementById('hsub').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
-renderHome();updateSheetsUI(!!state.googleToken);
+renderHome();updateSheetsUI(false);
 window.addEventListener('load',()=>{
   setTimeout(()=>{
     initGoogleClient();
-    setTimeout(()=>{if(tokenClient&&!state.googleToken){try{tokenClient.requestAccessToken({prompt:''});}catch(e){}}},1500);
+    setTimeout(()=>{
+      if(tokenClient&&!state.googleToken){
+        try{tokenClient.requestAccessToken({prompt:''});}catch(e){}
+      }
+    },1500);
   },1000);
 });
 </script>
