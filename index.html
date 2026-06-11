@@ -497,7 +497,18 @@ function today(){return new Date().toISOString().slice(0,10);}
 function fmtDate(d){if(!d)return'';try{return new Date(d+'T12:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});}catch(e){return d;}}
 function fmtBRL(v){return'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function mesAtual(){return new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});}
-function calcVcto(){const n=new Date();let m=n.getMonth()+2;let y=n.getFullYear();if(m>12){m=1;y++;}return'10/'+String(m).padStart(2,'0')+'/'+y;}
+function calcVcto(dataGasto){
+  const d = dataGasto ? new Date(dataGasto+'T12:00') : new Date();
+  let m = d.getMonth(); // 0-indexed
+  let y = d.getFullYear();
+  if(d.getDate() >= 4){
+    // Compra a partir do dia 04: fatura do mês seguinte, vence dia 10
+    m += 1;
+    if(m > 11){ m = 0; y += 1; }
+  }
+  // vence dia 10 do mês m (que já é o mês correto da fatura)
+  return '10/'+String(m+1).padStart(2,'0')+'/'+y;
+}
 function nextWeek(){const d=new Date();d.setDate(d.getDate()+7);return d.toISOString().slice(0,10);}
 function catClass(c){return({Pessoal:'cat-pessoal',Trabalho:'cat-trabalho','Saúde':'cat-saude',Financeiro:'cat-financeiro'})[c]||'cat-pessoal';}
 function prioLabel(p){if(p==='alta')return'<span class="prio-alta">● Alta</span>';if(p==='media')return'<span class="prio-media">● Média</span>';return'';}
@@ -547,10 +558,24 @@ async function sendToSheets(gasto){
   if(!state.googleToken){ console.log('Sheets: não conectado'); return; }
   const sheetsId = state.sheetsId || SHEETS_ID_DEFAULT;
 
-  // Determine which sheet tab to use based on current month
+  // Determine which sheet tab to use
+  // Cartão: fatura vira dia 04, então compras de 04/mês até 03/mês+1 vão para a aba do mês atual
+  // Pix/Dinheiro: vai para a aba do mês do gasto
   const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   const d = new Date(gasto.data+'T12:00');
-  const sheetName = months[d.getMonth()]+'-'+String(d.getFullYear()).slice(2);
+  let sheetMonth = d.getMonth();
+  let sheetYear = d.getFullYear();
+  if(gasto.forma === 'Cartão'){
+    // Fatura fecha dia 03, abre dia 04
+    // Compra a partir do dia 04 → aba e vencimento do mês seguinte
+    // Compra entre dia 01-03 → aba e vencimento do mês atual
+    if(d.getDate() >= 4){
+      sheetMonth += 1;
+      if(sheetMonth > 11){ sheetMonth = 0; sheetYear += 1; }
+    }
+    // sheetMonth agora é o mês da fatura (mesmo que o vencimento)
+  }
+  const sheetName = months[sheetMonth]+'-'+String(sheetYear).slice(2);
 
   // Row matches planilha: Data Pagamento | Valor | Descrição | Status
   const row = [
@@ -727,7 +752,7 @@ async function saveGasto(){
   const forma=document.querySelector('#seg-forma .seg-btn.active')?.textContent||'Cartão';
   const status=document.querySelector('#seg-status .seg-btn.active')?.textContent||'A Pagar';
   const data=document.getElementById('g-data').value||today();
-  const vcto=forma==='Cartão'?calcVcto():'';
+  const vcto=forma==='Cartão'?calcVcto(data):'';
   const gasto={id:state.nextId++,desc,valor,forma,status,data,vcto};
   state.gastos.unshift(gasto);
   saveState();
