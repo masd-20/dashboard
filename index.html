@@ -553,17 +553,16 @@ async function sendToSheets(gasto){
   const sheetName = months[d.getMonth()]+'-'+String(d.getFullYear()).slice(2);
 
   // Row matches planilha: Data Pagamento | Valor | Descrição | Status
-  const valorStr = Number(gasto.valor).toFixed(2).replace('.',',');
   const row = [
     fmtDate(gasto.data),
-    valorStr,
+    Number(Number(gasto.valor).toFixed(2)),
     gasto.desc,
     gasto.status,
   ];
 
   try {
     const resp = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${sheetsId}/values/${encodeURIComponent(sheetName)}:append?valueInputOption=USER_ENTERED`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetsId}/values/${encodeURIComponent(sheetName)}:append?valueInputOption=RAW`,
       {
         method: 'POST',
         headers: {
@@ -577,7 +576,15 @@ async function sendToSheets(gasto){
       const err = await resp.json();
       console.error('Sheets error:', err);
       if(resp.status===401){ state.googleToken=null; updateSheetsUI(false); }
+      return false;
     } else {
+      const json = await resp.json();
+      // Store the row number so we can mark as deleted later
+      const range = json.updates && json.updates.updatedRange;
+      if(range){
+        const match = range.match(/(\d+)$/);
+        if(match) return parseInt(match[1]);
+      }
       console.log('✅ Lançamento enviado para Sheets');
     }
   } catch(e){
@@ -734,19 +741,39 @@ async function saveGasto(){
       showToast('Reconecte o Google Sheets nas configurações','var(--amber-l)');
       return;
     }
-    const ok=await sendToSheets(gasto);
-    if(ok) showToast('Enviado para a planilha');
+    const row=await sendToSheets(gasto);
+    if(row){ gasto.sheetsRow=row; saveState(); showToast('Enviado para a planilha ✅'); }
     else showToast('Erro ao enviar — reconecte o Google','var(--amber-l)');
   } else {
     showToast('Lancamento salvo');
   }
 }
 
-function deleteGasto(id){
+async function deleteGasto(id){
   if(!confirm('Excluir este lançamento?'))return;
+  const gasto=state.gastos.find(g=>g.id===id);
   state.gastos=state.gastos.filter(g=>g.id!==id);
   saveState();
   renderFinanceiro();renderHome();
+  // Mark as deleted in Google Sheets if connected and row is known
+  if(gasto && gasto.sheetsRow && state.googleToken){
+    const sheetsId = state.sheetsId || SHEETS_ID_DEFAULT;
+    const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const d = new Date(gasto.data+'T12:00');
+    const sheetName = months[d.getMonth()]+'-'+String(d.getFullYear()).slice(2);
+    const range = encodeURIComponent(sheetName)+'!G'+gasto.sheetsRow;
+    try{
+      await fetch(
+        'https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+range+'?valueInputOption=RAW',
+        {
+          method:'PUT',
+          headers:{'Authorization':'Bearer '+state.googleToken,'Content-Type':'application/json'},
+          body:JSON.stringify({values:[['Excluído']]})
+        }
+      );
+      showToast('Marcado como Excluído na planilha');
+    }catch(e){ console.error('Sheets delete mark error:',e); }
+  }
 }
 // ---- HABITOS ----
 function renderHabitos(){
