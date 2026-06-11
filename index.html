@@ -515,7 +515,9 @@ async function syncFromSheets(){
   const sheetName=MONTHS[m]+'-'+String(y).slice(2);
   showToast('Sincronizando planilha...');
   try{
-    const url='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+"/values/'"+ sheetName +"'!D7:G?majorDimension=ROWS";
+    const url='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+"/values/'"+sheetName+"'!D7:G?majorDimension=ROWS";
+    console.log('Sync URL:', url);
+    console.log('Token exists:', !!state.googleToken);
     const resp=await fetch(url,{headers:{'Authorization':'Bearer '+state.googleToken}});
     if(!resp.ok){
       if(resp.status===401){state.googleToken=null;updateSheetsUI(false);}
@@ -860,14 +862,7 @@ loadState();
 document.getElementById('hsub').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
 renderHome();updateSheetsUI(false);
 window.addEventListener('load',()=>{
-  setTimeout(()=>{
-    initGoogleClient();
-    setTimeout(()=>{
-      if(tokenClient&&!state.googleToken){
-        try{tokenClient.requestAccessToken({prompt:''});}catch(e){}
-      }
-    },1500);
-  },1000);
+  setTimeout(initGoogleClient, 1000);
 });
 </script>
 </body>
