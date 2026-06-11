@@ -586,8 +586,10 @@ async function sendToSheets(gasto){
   ];
 
   try {
+    // Wrap sheetName in single quotes for Sheets API (required for names with hyphens)
+    const safeSheet = "'"+sheetName+"'";
     const resp = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${sheetsId}/values/${encodeURIComponent(sheetName)}:append?valueInputOption=RAW`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetsId}/values/${encodeURIComponent(safeSheet)}:append?valueInputOption=USER_ENTERED`,
       {
         method: 'POST',
         headers: {
