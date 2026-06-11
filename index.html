@@ -553,9 +553,10 @@ async function sendToSheets(gasto){
   const sheetName = months[d.getMonth()]+'-'+String(d.getFullYear()).slice(2);
 
   // Row matches planilha: Data Pagamento | Valor | Descrição | Status
+  const valorStr = Number(gasto.valor).toFixed(2).replace('.',',');
   const row = [
     fmtDate(gasto.data),
-    'R$ '+Number(gasto.valor).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}),
+    valorStr,
     gasto.desc,
     gasto.status,
   ];
