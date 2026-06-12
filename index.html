@@ -642,10 +642,11 @@ async function sendToSheets(gasto){
 async function markDeletedInSheets(gasto){
   if(!state.googleToken||!gasto.sheetsRow)return;
   const sheetsId=state.sheetsId||SHEETS_ID_DEFAULT;
-  const {sheetName}=calcFaturaInfo(gasto.data);
   try{
-    const url='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/'+encodeURIComponent(sheetName)+'!G'+gasto.sheetsRow+'?valueInputOption=RAW';
-    await fetch(url,{method:'PUT',headers:{'Authorization':'Bearer '+state.googleToken,'Content-Type':'application/json'},body:JSON.stringify({values:[['Excluído']]})});
+    // New structure: single Gastos tab, column E = Status
+    const url='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/Gastos!E'+gasto.sheetsRow+'?valueInputOption=RAW';
+    const resp=await fetch(url,{method:'PUT',headers:{'Authorization':'Bearer '+state.googleToken,'Content-Type':'application/json'},body:JSON.stringify({values:[['Excluído']]})});
+    if(!resp.ok){const e=await resp.json();console.error('markDeleted error:',e);showToast('Erro ao excluir na planilha','var(--coral-l)');return;}
     showToast('Marcado como Excluído na planilha');
   }catch(e){console.error('markDeleted error:',e);}
 }
