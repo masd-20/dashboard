@@ -430,7 +430,7 @@ const DATA_START_ROW = 7;
 let state = {
   tarefas:[], gastos:[], habitos:[], notas:[], eventos:[],
   calMonth:new Date().getMonth(), calYear:new Date().getFullYear(),
-  editNota:null, nextId:1, sheetsId:SHEETS_ID_DEFAULT, googleToken:null, entradasMes:0,
+  editNota:null, nextId:1, sheetsId:SHEETS_ID_DEFAULT, googleToken:null, entradasMes:0, mesFiltro:null, allGastos:[],
 };
 
 function loadState(){
@@ -566,20 +566,24 @@ async function syncFromSheets(){
         fromSheet:true,
       });
     });
-    state.gastos=gastos;
+    state.allGastos=gastos;
+
+    // Determine current billing month
+    const now=new Date();
+    let m=now.getMonth(), y=now.getFullYear();
+    if(now.getDate()>=4){m++;if(m>11){m=0;y++;}}
+    const mesFatura=MONTHS[m]+'-'+String(y).slice(2);
+    if(!state.mesFiltro)state.mesFiltro=mesFatura;
+    state.gastos=gastos.filter(g=>g.sheetName===state.mesFiltro);
 
     // Also fetch Entradas for current month
     try{
-      const now=new Date();
-      let m=now.getMonth(), y=now.getFullYear();
-      if(now.getDate()>=4){m++;if(m>11){m=0;y++;}}
-      const mesFatura=MONTHS[m]+'-'+String(y).slice(2);
       const entUrl='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/Entradas!A5:D?majorDimension=ROWS';
       const entResp=await fetch(entUrl,{headers:{'Authorization':'Bearer '+state.googleToken}});
       if(entResp.ok){
         const entJson=await entResp.json();
         const entRows=entJson.values||[];
-        const found=entRows.find(r=>r[0]===mesFatura);
+        const found=entRows.find(r=>r[0]===state.mesFiltro);
         if(found&&found[3]){
           const totalStr=String(found[3]).replace(/R\$\s*/,'').replace(/\./g,'').replace(',','.').trim();
           state.entradasMes=parseFloat(totalStr)||0;
@@ -739,9 +743,11 @@ function renderFinanceiro(){
   const max=total||1;
 
   const syncBtn='<button class="sync-btn" onclick="syncFromSheets()" '+(state.googleToken?'':'disabled style="opacity:.4"')+'>🔄 Sincronizar com planilha '+(state.googleToken?'':' (conecte o Google primeiro)')+'</button>';
+  const mesLabel=state.mesFiltro||mesAtual();
+  const monthSelector='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:13px;color:var(--txt2)">Exibindo: <strong style="color:var(--txt1)">'+mesLabel+'</strong></span><button onclick="changeMesFiltro()" style="background:var(--bg2);border:.5px solid var(--bg3);border-radius:var(--radius-sm);color:var(--purple-l);font-size:12px;padding:5px 10px;cursor:pointer;font-family:inherit">Trocar mês</button></div>';
 
   document.getElementById('f-lanc').innerHTML=
-    syncBtn+
+    syncBtn+monthSelector+
     '<div class="stats-row"><div class="stat-card"><div class="stat-label">Total do mês</div><div class="stat-val c-teal" style="font-size:18px">'+fmtBRL(total)+'</div></div><div class="stat-card"><div class="stat-label">A pagar</div><div class="stat-val c-amber" style="font-size:18px">'+fmtBRL(apagar)+'</div></div></div>'+
     '<div class="card-block">'+(state.gastos.length?state.gastos.map(g=>
       '<div class="fin-row"><div style="flex:1"><div class="fin-desc">'+g.desc+'</div><div class="fin-date">'+fmtDate(g.data)+' · '+g.forma+(g.vcto?' · vence '+g.vcto:'')+'</div></div><div class="fin-right"><span class="status-badge '+(g.status==='Pago'?'status-pago':'status-apagar')+'">'+g.status+'</span><span class="fin-valor">'+fmtBRL(g.valor)+'</span><button onclick="deleteGasto('+g.id+')" style="background:none;border:none;color:var(--txt3);font-size:16px;cursor:pointer;padding:0 0 0 8px">🗑</button></div></div>'
@@ -912,6 +918,37 @@ function saveEvento(){
 }
 
 // ---- CONFIG ----
+function changeMesFiltro(){
+  const novo=prompt('Digite o Mês/Fatura (ex: Jul-26):', state.mesFiltro||mesAtual());
+  if(!novo)return;
+  state.mesFiltro=novo.trim();
+  state.gastos=state.allGastos.filter(g=>g.sheetName===state.mesFiltro);
+  saveState();
+  // Refetch entradas for new month
+  if(state.googleToken)refetchEntradas();
+  else {renderFinanceiro();renderHome();}
+}
+
+async function refetchEntradas(){
+  const sheetsId=state.sheetsId||SHEETS_ID_DEFAULT;
+  try{
+    const entUrl='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/Entradas!A5:D?majorDimension=ROWS';
+    const entResp=await fetch(entUrl,{headers:{'Authorization':'Bearer '+state.googleToken}});
+    if(entResp.ok){
+      const entJson=await entResp.json();
+      const entRows=entJson.values||[];
+      const found=entRows.find(r=>r[0]===state.mesFiltro);
+      if(found&&found[3]){
+        const totalStr=String(found[3]).replace(/R\$\s*/,'').replace(/\./g,'').replace(',','.').trim();
+        state.entradasMes=parseFloat(totalStr)||0;
+      }else{
+        state.entradasMes=0;
+      }
+    }
+  }catch(e){console.error(e);}
+  saveState();renderFinanceiro();renderHome();
+}
+
 function saveSheetId(){
   const val=document.getElementById('sheets-id-input').value.trim();
   if(!val)return alert('Cole o ID da planilha.');
