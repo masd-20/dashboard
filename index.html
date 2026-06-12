@@ -913,7 +913,7 @@ function renderAgenda(){
   const syncBtn='<button class="sync-btn" onclick="fetchGoogleCalendar().then(renderAgenda)" '+(state.googleToken?'':'disabled style="opacity:.4"')+'>🔄 Sincronizar Google Agenda'+(state.googleToken?'':' (conecte o Google primeiro)')+'</button>';
   document.getElementById('cal-sync-btn').innerHTML=syncBtn;
   document.getElementById('cal-events').innerHTML=evs.length?evs.map(e=>
-    '<div class="event-item"><div class="event-dot" style="background:'+(e.cor||'var(--purple)')+'"></div><div class="event-time">'+(e.hora||fmtDate(e.data))+'</div><div style="flex:1"><div class="event-name">'+e.titulo+'</div>'+(e.local?'<div class="event-sub">'+e.local+'</div>':'')+(e.fromGCal?'<div class="event-sub" style="color:var(--blue-l)">📅 Google Agenda</div>':'')+'</div></div>'
+    '<div class="event-item"><div class="event-dot" style="background:'+(e.cor||'var(--purple)')+'"></div><div class="event-time">'+(e.hora||fmtDate(e.data))+'</div><div style="flex:1"><div class="event-name">'+e.titulo+'</div>'+(e.local?'<div class="event-sub">'+e.local+'</div>':'')+(e.fromGCal?'<div class="event-sub" style="color:var(--blue-l)">📅 Google Agenda</div>':'')+'</div><button onclick="deleteEvento('+(e.id||0)+','+(e.gcalId?"'"+e.gcalId+"'":'null')+')" style="background:none;border:none;color:var(--txt3);font-size:16px;cursor:pointer;padding:0 0 0 8px">🗑</button></div>'
   ).join(''):'<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Nenhum evento neste mês.</div></div>';
 }
 function changeMonth(dir){
@@ -933,13 +933,46 @@ async function saveEvento(){
   const evento={id:state.nextId++,titulo,data,hora,local,cor:cores[Math.floor(Math.random()*cores.length)]};
   const sw=document.getElementById('ev-gcal-sw');
   const sendGCal=sw&&sw.classList.contains('on')&&state.googleToken;
-  state.eventos.push(evento);
-  saveState();closeModal('m-evento');document.getElementById('ev-titulo').value='';renderAgenda();
+  closeModal('m-evento');document.getElementById('ev-titulo').value='';
   if(sendGCal){
     const gcalId=await sendEventToGCal(evento);
-    if(gcalId){showToast('Evento criado no Google Agenda ✅');await fetchGoogleCalendar();renderAgenda();}
-    else showToast('Erro ao criar no Google Agenda','var(--coral-l)');
+    if(gcalId){
+      // Don't add to local eventos - it will come from GCal sync
+      showToast('Evento criado no Google Agenda ✅');
+      await fetchGoogleCalendar();renderAgenda();
+    }else{
+      // Fallback: save locally if GCal failed
+      state.eventos.push(evento);
+      saveState();renderAgenda();
+      showToast('Erro ao criar no Google Agenda — salvo localmente','var(--amber-l)');
+    }
+  }else{
+    state.eventos.push(evento);
+    saveState();renderAgenda();
   }
+}
+
+function deleteEvento(id,gcalId){
+  if(!confirm('Excluir este evento?'))return;
+  if(gcalId){
+    deleteFromGCal(gcalId);
+    state.gcalEvents=state.gcalEvents.filter(e=>e.gcalId!==gcalId);
+  }else{
+    state.eventos=state.eventos.filter(e=>e.id!==id);
+    saveState();
+  }
+  renderAgenda();
+}
+
+async function deleteFromGCal(gcalId){
+  if(!state.googleToken)return;
+  try{
+    await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events/'+gcalId,{
+      method:'DELETE',
+      headers:{'Authorization':'Bearer '+state.googleToken},
+    });
+    showToast('Evento excluído do Google Agenda');
+  }catch(e){console.error('GCal delete error:',e);showToast('Erro ao excluir','var(--coral-l)');}
 }
 
 // ---- CONFIG ----
