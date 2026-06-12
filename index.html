@@ -243,6 +243,7 @@ textarea.form-input{resize:none;line-height:1.6}
       </div>
       <div class="cal-grid" id="cal-grid"></div>
       <div class="section-label">Eventos do mês</div>
+      <div id="cal-sync-btn"></div>
       <div class="card-block" id="cal-events"></div>
       <button class="add-btn" onclick="openModal('m-evento')">＋ Novo evento</button>
     </div>
@@ -910,9 +911,10 @@ function renderAgenda(){
   const evsInMonth=allEvents.filter(e=>{if(!e.data)return false;const d=new Date(e.data+'T12:00');return d.getFullYear()===y&&d.getMonth()===m;});
   const evs=evsInMonth.sort((a,b)=>(a.data+( a.hora||'')).localeCompare(b.data+(b.hora||'')));
   const syncBtn='<button class="sync-btn" onclick="fetchGoogleCalendar().then(renderAgenda)" '+(state.googleToken?'':'disabled style="opacity:.4"')+'>🔄 Sincronizar Google Agenda'+(state.googleToken?'':' (conecte o Google primeiro)')+'</button>';
-  document.getElementById('cal-events').outerHTML='<div id="cal-events-wrap">'+syncBtn+'<div class="card-block" id="cal-events">'+(evs.length?evs.map(e=>
+  document.getElementById('cal-sync-btn').innerHTML=syncBtn;
+  document.getElementById('cal-events').innerHTML=evs.length?evs.map(e=>
     '<div class="event-item"><div class="event-dot" style="background:'+(e.cor||'var(--purple)')+'"></div><div class="event-time">'+(e.hora||fmtDate(e.data))+'</div><div style="flex:1"><div class="event-name">'+e.titulo+'</div>'+(e.local?'<div class="event-sub">'+e.local+'</div>':'')+(e.fromGCal?'<div class="event-sub" style="color:var(--blue-l)">📅 Google Agenda</div>':'')+'</div></div>'
-  ).join(''):'<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Nenhum evento neste mês.</div></div>')+'</div></div>';
+  ).join(''):'<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Nenhum evento neste mês.</div></div>';
 }
 function changeMonth(dir){
   state.calMonth+=dir;
