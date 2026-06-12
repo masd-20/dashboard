@@ -430,7 +430,7 @@ const DATA_START_ROW = 7;
 let state = {
   tarefas:[], gastos:[], habitos:[], notas:[], eventos:[],
   calMonth:new Date().getMonth(), calYear:new Date().getFullYear(),
-  editNota:null, nextId:1, sheetsId:SHEETS_ID_DEFAULT, googleToken:null,
+  editNota:null, nextId:1, sheetsId:SHEETS_ID_DEFAULT, googleToken:null, entradasMes:0,
 };
 
 function loadState(){
@@ -567,6 +567,26 @@ async function syncFromSheets(){
       });
     });
     state.gastos=gastos;
+
+    // Also fetch Entradas for current month
+    try{
+      const now=new Date();
+      let m=now.getMonth(), y=now.getFullYear();
+      if(now.getDate()>=4){m++;if(m>11){m=0;y++;}}
+      const mesFatura=MONTHS[m]+'-'+String(y).slice(2);
+      const entUrl='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/Entradas!A5:D?majorDimension=ROWS';
+      const entResp=await fetch(entUrl,{headers:{'Authorization':'Bearer '+state.googleToken}});
+      if(entResp.ok){
+        const entJson=await entResp.json();
+        const entRows=entJson.values||[];
+        const found=entRows.find(r=>r[0]===mesFatura);
+        if(found&&found[3]){
+          const totalStr=String(found[3]).replace(/R\$\s*/,'').replace(/\./g,'').replace(',','.').trim();
+          state.entradasMes=parseFloat(totalStr)||0;
+        }
+      }
+    }catch(e){console.error('Entradas fetch error:',e);}
+
     saveState();
     renderFinanceiro();renderHome();
     showToast('Sincronizado ✅ ('+gastos.length+' itens)');
@@ -663,7 +683,7 @@ function renderHome(){
   const pago=state.gastos.filter(g=>g.status==='Pago').reduce((a,g)=>a+Number(g.valor),0);
   const entradas=state.gastos.filter(g=>g.valor<0).reduce((a,g)=>a+Math.abs(Number(g.valor)),0); // negative = income if any
   document.getElementById('home-mes').textContent=mesAtual();
-  document.getElementById('home-entradas').textContent=fmtBRL(apagar+pago);
+  document.getElementById('home-entradas').textContent=fmtBRL(state.entradasMes);
   document.getElementById('home-apagar').textContent=fmtBRL(apagar);
   document.getElementById('home-tasks').textContent=pending+' pendente'+(pending===1?'':'s');
   document.getElementById('home-tasks-done').textContent=done+' concluída'+(done===1?'':'s');
@@ -727,8 +747,9 @@ function renderFinanceiro(){
       '<div class="fin-row"><div style="flex:1"><div class="fin-desc">'+g.desc+'</div><div class="fin-date">'+fmtDate(g.data)+' · '+g.forma+(g.vcto?' · vence '+g.vcto:'')+'</div></div><div class="fin-right"><span class="status-badge '+(g.status==='Pago'?'status-pago':'status-apagar')+'">'+g.status+'</span><span class="fin-valor">'+fmtBRL(g.valor)+'</span><button onclick="deleteGasto('+g.id+')" style="background:none;border:none;color:var(--txt3);font-size:16px;cursor:pointer;padding:0 0 0 8px">🗑</button></div></div>'
     ).join(''):'<div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nenhum lançamento. Sincronize com a planilha ou adicione manualmente.</div></div>')+'</div>';
 
+  const saldo=state.entradasMes-total;
   document.getElementById('f-resumo').innerHTML=
-    '<div class="card-block"><div style="text-align:center;padding:12px 0 16px"><div style="font-size:12px;color:var(--txt2);margin-bottom:6px">Total do mês</div><div style="font-size:32px;font-weight:700;color:var(--txt1)">'+fmtBRL(total)+'</div></div><div style="height:1px;background:var(--bg3);margin-bottom:14px"></div><div class="fin-row"><span style="color:var(--txt2)">Pago</span><span style="color:var(--teal-l);font-weight:600">'+fmtBRL(pago)+'</span></div><div class="fin-row"><span style="color:var(--txt2)">A pagar</span><span style="color:var(--amber-l);font-weight:600">'+fmtBRL(apagar)+'</span></div></div>'+
+    '<div class="card-block"><div style="text-align:center;padding:12px 0 16px"><div style="font-size:12px;color:var(--txt2);margin-bottom:6px">Saldo restante</div><div style="font-size:32px;font-weight:700;color:var(--teal-l)">'+fmtBRL(saldo)+'</div></div><div style="height:1px;background:var(--bg3);margin-bottom:14px"></div><div class="fin-row"><span style="color:var(--txt2)">Entradas</span><span style="color:var(--blue-l);font-weight:600">'+fmtBRL(state.entradasMes)+'</span></div><div class="fin-row"><span style="color:var(--txt2)">Total gastos</span><span style="font-weight:600">'+fmtBRL(total)+'</span></div><div class="fin-row"><span style="color:var(--txt2)">Pago</span><span style="color:var(--teal-l);font-weight:600">'+fmtBRL(pago)+'</span></div><div class="fin-row"><span style="color:var(--txt2)">A pagar</span><span style="color:var(--amber-l);font-weight:600">'+fmtBRL(apagar)+'</span></div></div>'+
     '<div class="card-block"><div style="font-size:12px;color:var(--txt2);margin-bottom:12px">Distribuição</div><div class="bar-chart"><div><div class="bar-label-row"><span>Pago</span><span style="color:var(--txt2);font-size:12px">'+fmtBRL(pago)+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.min(100,(pago/max)*100).toFixed(1)+'%;background:var(--teal)"></div></div></div><div><div class="bar-label-row"><span>A pagar</span><span style="color:var(--txt2);font-size:12px">'+fmtBRL(apagar)+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.min(100,(apagar/max)*100).toFixed(1)+'%;background:var(--amber)"></div></div></div></div></div>';
 }
 
