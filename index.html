@@ -408,6 +408,10 @@ textarea.form-input{resize:none;line-height:1.6}
       <div class="form-group"><label class="form-label">Hora</label><input class="form-input" id="ev-hora" type="time"></div>
     </div>
     <div class="form-group"><label class="form-label">Local (opcional)</label><input class="form-input" id="ev-local" placeholder="Onde?"></div>
+    <div class="form-group">
+      <div class="switch-row"><span style="font-size:13px;color:var(--txt2)">Sincronizar com Google Agenda</span><div class="switch on" id="ev-gcal-sw" onclick="toggleSw(this)"></div></div>
+      <div class="hint">Conecte o Google nas configurações para ativar.</div>
+    </div>
     <button class="add-btn" onclick="saveEvento()">Criar evento</button>
   </div>
 </div>
@@ -416,7 +420,7 @@ textarea.form-input{resize:none;line-height:1.6}
 // ---- CONSTANTS ----
 const GOOGLE_CLIENT_ID = '25270362419-a1kpsrv2gt20pelsismq0r0tkile7lq4.apps.googleusercontent.com';
 const SHEETS_ID_DEFAULT = '11ja27Qh-jjJEA5az7kfn97lvzUYFp6iaSFprk_fB6jo';
-const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/calendar';
 const STORE_KEY = 'dashboard_v4';
 const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 // Planilha columns: D=data, E=valor, F=descrição, G=status. Data starts row 7.
@@ -430,7 +434,7 @@ const DATA_START_ROW = 7;
 let state = {
   tarefas:[], gastos:[], habitos:[], notas:[], eventos:[],
   calMonth:new Date().getMonth(), calYear:new Date().getFullYear(),
-  editNota:null, nextId:1, sheetsId:SHEETS_ID_DEFAULT, googleToken:null, entradasMes:0, mesFiltro:null, allGastos:[],
+  editNota:null, nextId:1, sheetsId:SHEETS_ID_DEFAULT, googleToken:null, entradasMes:0, mesFiltro:null, allGastos:[], gcalEvents:[],
 };
 
 function loadState(){
@@ -498,6 +502,7 @@ function initGoogleClient(){
       updateSheetsUI(true);
       showToast('Google Sheets conectado ✅');
       syncFromSheets();
+      fetchGoogleCalendar().then(()=>{if(document.getElementById('s-agenda').classList.contains('active'))renderAgenda();});
     },
   });
 }
@@ -895,30 +900,115 @@ function renderAgenda(){
   const y=state.calYear, m=state.calMonth;
   const mNames=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   document.getElementById('cal-title').textContent=mNames[m]+' '+y;
+  const allEvents=[...state.eventos,...state.gcalEvents];
+  const evDays=new Set(allEvents.filter(e=>e.data).map(e=>{const d=new Date(e.data+'T12:00');return(d.getFullYear()===y&&d.getMonth()===m)?d.getDate():null;}).filter(Boolean));
   const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate(), ts=today();
-  const evDays=new Set(state.eventos.filter(e=>e.data).map(e=>{const d=new Date(e.data+'T12:00');return(d.getFullYear()===y&&d.getMonth()===m)?d.getDate():null;}).filter(Boolean));
   let h='<div class="cal-hdr">D</div><div class="cal-hdr">S</div><div class="cal-hdr">T</div><div class="cal-hdr">Q</div><div class="cal-hdr">Q</div><div class="cal-hdr">S</div><div class="cal-hdr">S</div>';
   for(let i=0;i<first;i++)h+='<div class="cal-day" style="color:var(--txt3)"></div>';
   for(let d=1;d<=days;d++){const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');h+='<div class="cal-day'+(ds===ts?' today':'')+(evDays.has(d)?' has-event':'')+'">'+d+'</div>';}
   document.getElementById('cal-grid').innerHTML=h;
-  const evs=state.eventos.sort((a,b)=>(a.data||'').localeCompare(b.data||''));
-  document.getElementById('cal-events').innerHTML=evs.length?evs.map(e=>
-    '<div class="event-item"><div class="event-dot" style="background:'+(e.cor||'var(--purple)')+'"></div><div class="event-time">'+(e.hora||fmtDate(e.data))+'</div><div><div class="event-name">'+e.titulo+'</div>'+(e.local?'<div class="event-sub">'+e.local+'</div>':'')+'</div></div>'
-  ).join(''):'<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Nenhum evento ainda.</div></div>';
+  const evsInMonth=allEvents.filter(e=>{if(!e.data)return false;const d=new Date(e.data+'T12:00');return d.getFullYear()===y&&d.getMonth()===m;});
+  const evs=evsInMonth.sort((a,b)=>(a.data+( a.hora||'')).localeCompare(b.data+(b.hora||'')));
+  const syncBtn='<button class="sync-btn" onclick="fetchGoogleCalendar().then(renderAgenda)" '+(state.googleToken?'':'disabled style="opacity:.4"')+'>🔄 Sincronizar Google Agenda'+(state.googleToken?'':' (conecte o Google primeiro)')+'</button>';
+  document.getElementById('cal-events').outerHTML='<div id="cal-events-wrap">'+syncBtn+'<div class="card-block" id="cal-events">'+(evs.length?evs.map(e=>
+    '<div class="event-item"><div class="event-dot" style="background:'+(e.cor||'var(--purple)')+'"></div><div class="event-time">'+(e.hora||fmtDate(e.data))+'</div><div style="flex:1"><div class="event-name">'+e.titulo+'</div>'+(e.local?'<div class="event-sub">'+e.local+'</div>':'')+(e.fromGCal?'<div class="event-sub" style="color:var(--blue-l)">📅 Google Agenda</div>':'')+'</div></div>'
+  ).join(''):'<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Nenhum evento neste mês.</div></div>')+'</div></div>';
 }
-function changeMonth(dir){state.calMonth+=dir;if(state.calMonth>11){state.calMonth=0;state.calYear++;}if(state.calMonth<0){state.calMonth=11;state.calYear--;}renderAgenda();}
-function saveEvento(){
+function changeMonth(dir){
+  state.calMonth+=dir;
+  if(state.calMonth>11){state.calMonth=0;state.calYear++;}
+  if(state.calMonth<0){state.calMonth=11;state.calYear--;}
+  renderAgenda();
+  if(state.googleToken)fetchGoogleCalendar().then(renderAgenda);
+}
+async function saveEvento(){
   const titulo=document.getElementById('ev-titulo').value.trim();
   if(!titulo)return alert('Adicione um título.');
   const data=document.getElementById('ev-data').value||today();
   const hora=document.getElementById('ev-hora').value;
   const local=document.getElementById('ev-local').value.trim();
   const cores=['var(--purple)','var(--teal)','var(--amber)','var(--coral)','var(--blue-l)'];
-  state.eventos.push({id:state.nextId++,titulo,data,hora,local,cor:cores[Math.floor(Math.random()*cores.length)]});
+  const evento={id:state.nextId++,titulo,data,hora,local,cor:cores[Math.floor(Math.random()*cores.length)]};
+  const sw=document.getElementById('ev-gcal-sw');
+  const sendGCal=sw&&sw.classList.contains('on')&&state.googleToken;
+  state.eventos.push(evento);
   saveState();closeModal('m-evento');document.getElementById('ev-titulo').value='';renderAgenda();
+  if(sendGCal){
+    const gcalId=await sendEventToGCal(evento);
+    if(gcalId){showToast('Evento criado no Google Agenda ✅');await fetchGoogleCalendar();renderAgenda();}
+    else showToast('Erro ao criar no Google Agenda','var(--coral-l)');
+  }
 }
 
 // ---- CONFIG ----
+// ---- GOOGLE CALENDAR ----
+async function fetchGoogleCalendar(){
+  if(!state.googleToken)return;
+  try{
+    // Get events from start of current month to end of next month
+    const y=state.calYear, m=state.calMonth;
+    const timeMin=new Date(y,m,1).toISOString();
+    const timeMax=new Date(y,m+2,0).toISOString();
+    const url='https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin='+encodeURIComponent(timeMin)+'&timeMax='+encodeURIComponent(timeMax)+'&singleEvents=true&orderBy=startTime';
+    const resp=await fetch(url,{headers:{'Authorization':'Bearer '+state.googleToken}});
+    if(!resp.ok){
+      const e=await resp.json();
+      console.error('GCal fetch error:',e);
+      if(resp.status===401){state.googleToken=null;updateSheetsUI(false);}
+      return;
+    }
+    const json=await resp.json();
+    const items=json.items||[];
+    state.gcalEvents=items.map(ev=>{
+      const start=ev.start.dateTime||ev.start.date;
+      const isAllDay=!ev.start.dateTime;
+      const dataISO=isAllDay?start:start.slice(0,10);
+      const hora=isAllDay?'':new Date(start).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      return{
+        id:'gcal_'+ev.id,
+        titulo:ev.summary||'(Sem título)',
+        data:dataISO,
+        hora,
+        local:ev.location||'',
+        cor:'var(--blue-l)',
+        fromGCal:true,
+        gcalId:ev.id,
+      };
+    });
+    showToast('Google Agenda sincronizada ✅');
+  }catch(e){console.error('GCal fetch error:',e);}
+}
+
+async function sendEventToGCal(evento){
+  if(!state.googleToken)return null;
+  try{
+    const body={
+      summary:evento.titulo,
+      location:evento.local||undefined,
+    };
+    if(evento.hora){
+      const startDateTime=evento.data+'T'+evento.hora+':00';
+      const endDate=new Date(startDateTime);
+      endDate.setHours(endDate.getHours()+1);
+      body.start={dateTime:startDateTime,timeZone:'America/Sao_Paulo'};
+      body.end={dateTime:endDate.toISOString().slice(0,19),timeZone:'America/Sao_Paulo'};
+    }else{
+      body.start={date:evento.data};
+      const endD=new Date(evento.data+'T12:00');
+      endD.setDate(endD.getDate()+1);
+      body.end={date:endD.toISOString().slice(0,10)};
+    }
+    const resp=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+state.googleToken,'Content-Type':'application/json'},
+      body:JSON.stringify(body),
+    });
+    const json=await resp.json();
+    if(!resp.ok){console.error('GCal create error:',json);return null;}
+    return json.id;
+  }catch(e){console.error('GCal create error:',e);return null;}
+}
+
 function changeMesFiltro(){
   const novo=prompt('Digite o Mês/Fatura (ex: Jul-26):', state.mesFiltro||mesAtual());
   if(!novo)return;
