@@ -264,7 +264,7 @@ textarea.form-input{resize:none;line-height:1.6}
       <div class="card-block">
         <div class="form-group" style="margin-bottom:0">
           <label class="form-label">ID da planilha Google Sheets</label>
-          <input class="form-input" id="sheets-id-input" value="1HgRdVCBCFo-0viLX9pdTGtsBNkb61m3SWMWNpaz3UfQ">
+          <input class="form-input" id="sheets-id-input" value="11ja27Qh-jjJEA5az7kfn97lvzUYFp6iaSFprk_fB6jo">
           <div class="hint">Encontrado na URL entre /d/ e /edit</div>
         </div>
         <button class="add-btn" style="margin-top:12px" onclick="saveSheetId()">Salvar ID</button>
@@ -338,6 +338,18 @@ textarea.form-input{resize:none;line-height:1.6}
         <button class="seg-btn" onclick="selSeg(this)">Pago</button>
       </div>
     </div>
+    <div class="form-group" id="parcelas-box">
+      <label class="form-label">Parcelas (opcional)</label>
+      <div class="seg-control" id="seg-parcelas-tipo">
+        <button class="seg-btn active" onclick="selSeg(this);toggleParcelas(false)">À vista</button>
+        <button class="seg-btn" onclick="selSeg(this);toggleParcelas(true)">Parcelado</button>
+      </div>
+    </div>
+    <div class="form-group" id="parcelas-qtd-box" style="display:none">
+      <label class="form-label">Número de parcelas</label>
+      <input class="form-input" id="g-parcelas" type="number" min="2" max="60" placeholder="Ex: 12">
+      <div class="hint">O app criará uma linha por parcela, cada uma com o mês correto</div>
+    </div>
     <div class="form-group">
       <div class="switch-row"><span style="font-size:13px;color:var(--txt2)">Enviar para Google Sheets</span><div class="switch on" id="g-sheets-sw" onclick="toggleSw(this)"></div></div>
       <div class="hint" id="sheets-hint-text">Conecte o Google Sheets nas configurações.</div>
@@ -403,7 +415,7 @@ textarea.form-input{resize:none;line-height:1.6}
 <script>
 // ---- CONSTANTS ----
 const GOOGLE_CLIENT_ID = '25270362419-a1kpsrv2gt20pelsismq0r0tkile7lq4.apps.googleusercontent.com';
-const SHEETS_ID_DEFAULT = '1HgRdVCBCFo-0viLX9pdTGtsBNkb61m3SWMWNpaz3UfQ';
+const SHEETS_ID_DEFAULT = '11ja27Qh-jjJEA5az7kfn97lvzUYFp6iaSFprk_fB6jo';
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
 const STORE_KEY = 'dashboard_v4';
 const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -460,6 +472,11 @@ function calcFaturaInfo(dataStr){
   };
 }
 
+function toggleParcelas(show){
+  document.getElementById('parcelas-qtd-box').style.display=show?'block':'none';
+  if(!show) document.getElementById('g-parcelas').value='';
+}
+
 function atualizaVcto(){
   const data=document.getElementById('g-data').value;
   const forma=document.querySelector('#seg-forma .seg-btn.active')?.textContent||'Cartão';
@@ -505,38 +522,34 @@ function updateSheetsUI(connected){
 
 // ---- SYNC FROM SHEETS (planilha → app) ----
 async function syncFromSheets(){
-  if(!state.googleToken)return;
+  if(!state.googleToken){showToast('Conecte o Google Sheets primeiro','var(--amber-l)');return;}
   const sheetsId=state.sheetsId||SHEETS_ID_DEFAULT;
-  // Determine current billing month sheet name
-  const now=new Date();
-  // If today is before day 04, current fatura is this month, else next month
-  let m=now.getMonth(), y=now.getFullYear();
-  if(now.getDate()>=4){m++;if(m>11){m=0;y++;}}
-  const sheetName=MONTHS[m]+'-'+String(y).slice(2);
-  showToast('Sincronizando planilha...');
+  showToast('Sincronizando...');
   try{
-    const url='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+"/values/'"+sheetName+"'!D7:G?majorDimension=ROWS";
-    console.log('Sync URL:', url);
-    console.log('Token exists:', !!state.googleToken);
+    // Read all data from Gastos tab - simple name, no parsing issues
+    const url='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/Gastos!A5:H?majorDimension=ROWS';
     const resp=await fetch(url,{headers:{'Authorization':'Bearer '+state.googleToken}});
     if(!resp.ok){
+      const e=await resp.json();
+      console.error('Sync error:',e);
       if(resp.status===401){state.googleToken=null;updateSheetsUI(false);}
-      showToast('Erro ao sincronizar','var(--coral-l)');return;
+      showToast('Erro ao sincronizar: '+((e.error&&e.error.message)||resp.status),'var(--coral-l)');
+      return;
     }
     const json=await resp.json();
     const rows=json.values||[];
-    // Parse rows into gastos — skip rows with no description
     const gastos=[];
     rows.forEach((row,i)=>{
-      const dataRaw=row[COL_DATA-3]||''; // col D, offset 0
-      const valorRaw=row[COL_VALOR-3]||''; // col E, offset 1
-      const desc=row[COL_DESC-3]||''; // col F, offset 2
-      const status=row[COL_STATUS-3]||''; // col G, offset 3
+      const dataRaw=row[0]||'';
+      const desc=row[1]||'';
+      const valorRaw=row[2]||'';
+      const forma=row[3]||'Cartão';
+      const status=row[4]||'A Pagar';
+      const mesFatura=row[5]||'';
+      const parcela=row[6]||'';
       if(!desc||status==='Excluído')return;
-      // Parse valor: remove R$, spaces, convert comma to dot
       const valorStr=String(valorRaw).replace(/R\$\s*/,'').replace(/\./g,'').replace(',','.').trim();
       const valor=parseFloat(valorStr)||0;
-      // Parse date from dd/mm/yyyy
       let dataISO=today();
       if(dataRaw){
         const parts=String(dataRaw).split('/');
@@ -544,53 +557,59 @@ async function syncFromSheets(){
       }
       gastos.push({
         id:state.nextId++,
-        desc,valor,
-        forma:'Cartão', // assume cartão for planilha items
-        status:status||'A Pagar',
+        desc,valor,forma,status,
         data:dataISO,
-        vcto:'10/'+String(m+1).padStart(2,'0')+'/'+y,
-        sheetsRow:DATA_START_ROW+i,
+        vcto:'',
+        sheetsRow:5+i,
+        parcela,
+        sheetName:mesFatura,
         fromSheet:true,
       });
     });
     state.gastos=gastos;
     saveState();
     renderFinanceiro();renderHome();
-    showToast('Planilha sincronizada ✅ ('+gastos.length+' itens)');
+    showToast('Sincronizado ✅ ('+gastos.length+' itens)');
   }catch(e){
     console.error('Sync error:',e);
     showToast('Erro na sincronização','var(--coral-l)');
   }
 }
 
-// ---- SEND TO SHEETS (app → planilha) ----
-function encodeSheetName(name){
-  // Sheets API needs sheet name encoded without special chars in URL
-  // Use simple encoding that works
-  return encodeURIComponent(name);
-}
 
 async function sendToSheets(gasto){
   if(!state.googleToken)return false;
   const sheetsId=state.sheetsId||SHEETS_ID_DEFAULT;
-  const {sheetName}=calcFaturaInfo(gasto.data);
-  const valor=Number(Number(gasto.valor).toFixed(2));
-  const row=[fmtDate(gasto.data), valor, gasto.desc, gasto.status];
-  console.log('Sending to sheet:', sheetName, row);
+  const sheetName=gasto.sheetName||calcFaturaInfo(gasto.data).sheetName;
+  // New spreadsheet: single Gastos tab
+  // Columns: A=Data, B=Descrição, C=Valor, D=Forma, E=Status, F=Mês/Fatura, G=Parcela, H=Obs
+  const row=[
+    fmtDate(gasto.data),
+    gasto.desc,
+    Number(Number(gasto.valor).toFixed(2)),
+    gasto.forma,
+    gasto.status,
+    sheetName,
+    gasto.parcela||'',
+    '',
+  ];
+  console.log('Sending to Gastos, row:', row);
   try{
-
-    // Use spreadsheets.values.append with literal single quotes around sheet name
-    // The Sheets API requires literal single quotes (not URL-encoded) for names with hyphens
-    const appendUrl='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+"/values/'"+ sheetName +"'!D7:G?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS";
-    const writeResp=await fetch(appendUrl,{
+    // Single tab named "Gastos" — no hyphen, no parsing issues!
+    const url='https://sheets.googleapis.com/v4/spreadsheets/'+sheetsId+'/values/Gastos:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS';
+    const resp=await fetch(url,{
       method:'POST',
       headers:{'Authorization':'Bearer '+state.googleToken,'Content-Type':'application/json'},
       body:JSON.stringify({values:[row]}),
     });
-    const writeJson=await writeResp.json();
-    console.log('Write response:', writeJson);
-    if(!writeResp.ok){console.error('Write error:',writeJson);return false;}
-    const range=writeJson.updates&&writeJson.updates.updatedRange;
+    const json=await resp.json();
+    console.log('Sheets response:', json);
+    if(!resp.ok){
+      console.error('Sheets error:',json);
+      if(resp.status===401){state.googleToken=null;updateSheetsUI(false);}
+      return false;
+    }
+    const range=json.updates&&json.updates.updatedRange;
     if(range){const rowNum=parseInt(range.split(':').pop().replace(/[^0-9]/g,''));if(rowNum)return rowNum;}
     return true;
   }catch(e){console.error('sendToSheets error:',e);return false;}
@@ -720,18 +739,59 @@ async function saveGasto(){
   const forma=document.querySelector('#seg-forma .seg-btn.active')?.textContent||'Cartão';
   const status=document.querySelector('#seg-status .seg-btn.active')?.textContent||'A Pagar';
   const data=document.getElementById('g-data').value||today();
-  const vcto=forma==='Cartão'?calcFaturaInfo(data).vcto:'';
-  const gasto={id:state.nextId++,desc,valor,forma,status,data,vcto,sheetsRow:null};
-  state.gastos.unshift(gasto);
+  const sendSheets=document.getElementById('g-sheets-sw')?.classList.contains('on')&&state.googleToken;
+
+  // Check if parcelado
+  const isParcelado=document.querySelector('#seg-parcelas-tipo .seg-btn.active')?.textContent==='Parcelado';
+  const numParcelas=isParcelado?parseInt(document.getElementById('g-parcelas').value)||1:1;
+
+  if(isParcelado&&numParcelas<2)return alert('Informe o número de parcelas (mínimo 2).');
+
+  // Generate parcelas
+  const gastos=[];
+  for(let i=0;i<numParcelas;i++){
+    // Calculate date for each parcela
+    const d=new Date(data+'T12:00');
+    // Each parcela is one month ahead
+    const parcelaDate=new Date(d.getFullYear(), d.getMonth()+i, d.getDate());
+    const parcelaDataStr=parcelaDate.toISOString().slice(0,10);
+    const {vcto,sheetName}=calcFaturaInfo(parcelaDataStr);
+    const parcelaDesc=numParcelas>1?desc+' '+(i+1)+'/'+numParcelas:desc;
+    const parcelaNum=numParcelas>1?(i+1)+'/'+numParcelas:'';
+    gastos.push({
+      id:state.nextId++,
+      desc:parcelaDesc,
+      valor:Number(Number(valor).toFixed(2)),
+      forma,status,
+      data:parcelaDataStr,
+      vcto:forma==='Cartão'?vcto:'',
+      sheetsRow:null,
+      parcela:parcelaNum,
+      sheetName,
+    });
+  }
+
+  // Add all to state
+  state.gastos.unshift(...gastos.slice().reverse());
   saveState();closeModal('m-gasto');
-  document.getElementById('g-desc').value='';document.getElementById('g-valor').value='';
+  document.getElementById('g-desc').value='';
+  document.getElementById('g-valor').value='';
+  document.getElementById('g-parcelas').value='';
+  // Reset parcelas toggle
+  document.querySelectorAll('#seg-parcelas-tipo .seg-btn').forEach((b,i)=>{b.classList.toggle('active',i===0);});
+  document.getElementById('parcelas-qtd-box').style.display='none';
   renderFinanceiro();renderHome();
-  const sw=document.getElementById('g-sheets-sw');
-  if(sw&&sw.classList.contains('on')){
-    if(!state.googleToken){showToast('Reconecte o Google Sheets','var(--amber-l)');return;}
-    const row=await sendToSheets(gasto);
-    if(row){const saved=state.gastos.find(g=>g.id===gasto.id);if(saved){saved.sheetsRow=row;saveState();}showToast('Enviado para a planilha ✅');}
-    else showToast('Erro ao enviar — verifique conexão','var(--coral-l)');
+
+  if(sendSheets){
+    let sentCount=0;
+    for(const g of gastos){
+      const row=await sendToSheets(g);
+      if(row){const saved=state.gastos.find(x=>x.id===g.id);if(saved){saved.sheetsRow=row;}}
+      if(row)sentCount++;
+    }
+    saveState();
+    if(sentCount===gastos.length)showToast(numParcelas>1?numParcelas+' parcelas enviadas para a planilha ✅':'Enviado para a planilha ✅');
+    else showToast('Alguns itens não foram enviados','var(--amber-l)');
   }
 }
 
