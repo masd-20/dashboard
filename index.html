@@ -913,7 +913,7 @@ function renderAgenda(){
   const syncBtn='<button class="sync-btn" onclick="fetchGoogleCalendar().then(renderAgenda)" '+(state.googleToken?'':'disabled style="opacity:.4"')+'>🔄 Sincronizar Google Agenda'+(state.googleToken?'':' (conecte o Google primeiro)')+'</button>';
   document.getElementById('cal-sync-btn').innerHTML=syncBtn;
   document.getElementById('cal-events').innerHTML=evs.length?evs.map(e=>
-    '<div class="event-item"><div class="event-dot" style="background:'+(e.cor||'var(--purple)')+'"></div><div class="event-time">'+(e.hora||fmtDate(e.data))+'</div><div style="flex:1"><div class="event-name">'+e.titulo+'</div>'+(e.local?'<div class="event-sub">'+e.local+'</div>':'')+(e.fromGCal?'<div class="event-sub" style="color:var(--blue-l)">📅 Google Agenda</div>':'')+'</div><button onclick="deleteEvento('+(e.id||0)+','+(e.gcalId?"'"+e.gcalId+"'":'null')+')" style="background:none;border:none;color:var(--txt3);font-size:16px;cursor:pointer;padding:0 0 0 8px">🗑</button></div>'
+    '<div class="event-item"><div class="event-dot" style="background:'+(e.cor||'var(--purple)')+'"></div><div class="event-time">'+(e.hora||fmtDate(e.data))+'</div><div style="flex:1"><div class="event-name">'+e.titulo+'</div>'+(e.local?'<div class="event-sub">'+e.local+'</div>':'')+(e.fromGCal?'<div class="event-sub" style="color:var(--blue-l)">📅 Google Agenda</div>':'')+'</div><button onclick="deleteEvento(\\''+(e.id||0)+'\\','+(e.gcalId?"'"+e.gcalId+"'":'null')+')" style="background:none;border:none;color:var(--txt3);font-size:16px;cursor:pointer;padding:0 0 0 8px">🗑</button></div>'
   ).join(''):'<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Nenhum evento neste mês.</div></div>';
 }
 function changeMonth(dir){
