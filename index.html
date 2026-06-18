@@ -189,6 +189,7 @@ textarea.fi{resize:none;line-height:1.6}
       <div id="t-hoje"></div>
       <div id="t-semana" style="display:none"></div>
       <div id="t-todas" style="display:none"></div>
+      <button class="syncb" onclick="syncTarefas().then(renderTarefas)" style="margin-bottom:4px" id="sync-tarefas-btn">🔄 Sincronizar tarefas</button>
       <button class="ab" onclick="openModal('m-tarefa')">＋ Nova tarefa</button>
     </div>
 
@@ -209,11 +210,13 @@ textarea.fi{resize:none;line-height:1.6}
       </div>
       <div id="h-hoje"></div>
       <div id="h-historico" style="display:none"></div>
+      <button class="syncb" onclick="syncHabitos().then(renderHabitos)" style="margin-bottom:4px">🔄 Sincronizar hábitos</button>
       <button class="ab" onclick="openModal('m-habito')">＋ Novo hábito</button>
     </div>
 
     <div id="s-notas" class="screen">
       <div class="sw2"><span class="si2">🔍</span><input class="fi si" placeholder="Buscar notas..." oninput="filterNotas(this.value)"></div>
+      <button class="syncb" onclick="syncNotas().then(()=>renderNotas())" style="margin-bottom:4px">🔄 Sincronizar notas</button>
       <div id="notas-list"></div>
       <button class="ab" onclick="openModal('m-nota')">＋ Nova nota</button>
     </div>
@@ -523,12 +526,14 @@ async function syncGastos(){
 
 // ---- SYNC TAREFAS ----
 async function syncTarefas(){
+  if(!state.googleToken){showToast('Conecte o Google primeiro','var(--amber-l)');return;}
   try{
     const rows=await sheetsGet('Tarefas!A1:G');
     state.tarefas=rows.filter(r=>r[1]).map(r=>({
       id:r[0]||state.nextId++,desc:r[1],cat:r[2]||'Pessoal',prio:r[3]||'m',data:r[4]||today(),hora:r[5]||'',done:r[6]==='TRUE'||r[6]==='true'||r[6]===true,
     }));
     saveState();
+    showToast('Tarefas sincronizadas ✅');
   }catch(e){
     // Tab may not exist yet — ignore
     console.log('Tarefas tab not found, will create on first save');
