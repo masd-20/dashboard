@@ -524,7 +524,7 @@ async function syncGastos(){
 // ---- SYNC TAREFAS ----
 async function syncTarefas(){
   try{
-    const rows=await sheetsGet('Tarefas!A2:G');
+    const rows=await sheetsGet('Tarefas!A1:G');
     state.tarefas=rows.filter(r=>r[1]).map(r=>({
       id:r[0]||state.nextId++,desc:r[1],cat:r[2]||'Pessoal',prio:r[3]||'m',data:r[4]||today(),hora:r[5]||'',done:r[6]==='TRUE'||r[6]==='true'||r[6]===true,
     }));
@@ -549,7 +549,7 @@ async function updateTarefaDone(t){
 // ---- SYNC HABITOS ----
 async function syncHabitos(){
   try{
-    const rows=await sheetsGet('Habitos!A2:E');
+    const rows=await sheetsGet('Habitos!A1:E');
     state.habitos=rows.filter(r=>r[1]).map(r=>({
       id:r[0]||state.nextId++,nome:r[1],icone:r[2]||'⭐',freq:r[3]||'Diário',
       historico:r[4]?r[4].split(',').map(Number):[0],
@@ -568,7 +568,7 @@ async function updateHabitoHistorico(h,sheetRow){
 // ---- SYNC NOTAS ----
 async function syncNotas(){
   try{
-    const rows=await sheetsGet('Notas!A2:E');
+    const rows=await sheetsGet('Notas!A1:E');
     state.notas=rows.filter(r=>r[1]).map(r=>({
       id:r[0]||state.nextId++,titulo:r[1],corpo:r[2]||'',tags:(r[3]||'').split(',').map(t=>t.trim()).filter(Boolean),data:r[4]||today(),
     }));
