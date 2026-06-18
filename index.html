@@ -536,8 +536,10 @@ async function syncTarefas(){
 }
 async function pushTarefa(t){
   try{
-    await sheetsAppend('Tarefas',[[ t.id, t.desc, t.cat, t.prio, t.data, t.hora, t.done?'TRUE':'FALSE' ]]);
-  }catch(e){console.error('pushTarefa:',e);}
+    console.log('pushTarefa:', t, 'token:', !!state.googleToken);
+    const r=await sheetsAppend('Tarefas',[[ t.id, t.desc, t.cat, t.prio, t.data, t.hora, t.done?'TRUE':'FALSE' ]]);
+    console.log('pushTarefa result:', r);
+  }catch(e){console.error('pushTarefa error:',e);}
 }
 async function updateTarefaDone(t){
   if(!t.sheetRow)return;
